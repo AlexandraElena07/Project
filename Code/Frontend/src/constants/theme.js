@@ -6,7 +6,8 @@ const COLORS = {
     rose: "#EB6A58",
     red: "#B50404",
     green: "#449282",
-    white: "#FBFBFB"
+    white: "#FBFBFB",
+    grey: "#d9d7d7"
 };
 
 const SIZES = {
@@ -18,6 +19,15 @@ const SIZES = {
     xxLarge: 44,
     height,
     width
+}
+
+const TEXT = {
+    xSmall: 10,
+    small: 12,
+    medium: 16,
+    large: 20,
+    xLarge: 34,
+    xxLarge: 44
 }
 
 const SHADOWS = {
@@ -53,4 +63,4 @@ const SHADOWS = {
     },
 };
 
-export { COLORS, SIZES, SHADOWS };
+export { COLORS, SIZES, TEXT, SHADOWS };

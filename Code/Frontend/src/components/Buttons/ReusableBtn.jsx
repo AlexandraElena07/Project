@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         height: 45,
-        borderRadius: SIZES.small,
+        borderRadius: SIZES.large,
         borderColor: borderColor,
         borderWidth: borderWidth
     })

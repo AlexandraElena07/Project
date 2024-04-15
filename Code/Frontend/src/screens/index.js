@@ -4,8 +4,8 @@ import Location from "./location/Location"
 import Favorite from "./favorite/Favorite"
 import Profile from "./profile/Profile"
 import Search from "./search/Search"
-import SignIn from "./signIn/SignIn";
-import LogIn from "./logIn/LogIn"
+import Registration from "./authentication/Registration";
+import LogIn from "./authentication/LogIn"
 
 export {
     Onboarding,
@@ -14,6 +14,6 @@ export {
     Favorite,
     Profile, 
     Search,
-    SignIn,
+    Registration,
     LogIn
 }

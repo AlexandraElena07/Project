@@ -34,7 +34,7 @@ const Profile = ({navigation}) => {
       <HeightSpacer height={30} />
 
       <ReusableBtn
-            onPress={() => navigation.navigate('SignIn')}
+            onPress={() => navigation.navigate('Registration')}
             btnText={"Create new account"}
             width={(SIZES.width - 50)}
             backgroundColor={COLORS.transparency}

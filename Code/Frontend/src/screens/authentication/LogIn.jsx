@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { TextInput, Text, View, Image, TouchableOpacity, KeyboardAvoidingView, Keyboard } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { TextInput, Text, View, Image, TouchableOpacity, KeyboardAvoidingView, Keyboard, Alert } from 'react-native';
 import styles from './login.style';
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { COLORS, SIZES } from '../../constants/theme';
 import { HeightSpacer, WidthSpacer, ReusableBtn } from '../../components';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import axios from 'axios';
 
 const validationSchema = Yup.object().shape({
    password: Yup.string()
@@ -21,10 +22,39 @@ const validationSchema = Yup.object().shape({
 })
 
 const LogIn = () => {
-  const [loader, setLoader] = useState(false)
   const [responseData, setResponseData] = useState(null)
   const [obsecureText, setObsecureText] = useState(false)
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  const loginUser = async (userData) => {
+   try {
+     
+     const response = await axios.post('http://10.9.31.61:5003/api/login', userData);
+     
+     setResponseData(response.data); 
+     
+     console.log(response.data);
+     Alert.alert('Success', response.data.message)
+   //   , () => {
+   //    navigation.navigate('LogIn');
+   //    });
+
+   } catch (error) {
+
+      //console.error('Error creating user:', error);
+
+      if (error.response.status === 401) {
+         Alert.alert('Error', 'User not found');
+      } else if (error.response.status === 501) {
+         Alert.alert('Error', 'Wrong password. Try again!');
+      } else {
+         Alert.alert('Error', 'An error occurred while login the user.');
+      }
+    } 
+  };
 
   useEffect(() => {
    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -54,7 +84,7 @@ const LogIn = () => {
          <Formik
             initialValues={{email: "", password: ""}}
             validationSchema={validationSchema}
-            onSubmit={(value) => {console.log(value);}}>
+            onSubmit={(value) => {loginUser(value);}}>
 
                {({
                   handleChange,
@@ -67,6 +97,7 @@ const LogIn = () => {
 
                }) => (
                   <View>
+
                      <View style={styles.wraper}>
                         <Text style={styles.label}>Email</Text>
                         <View>
@@ -78,6 +109,7 @@ const LogIn = () => {
                               />
                               <WidthSpacer width={10}/>
                               <TextInput 
+                                 ref={emailRef}
                                  placeholder='Enter your email'
                                  onFocus={() => {setFieldTouched('email')}}
                                  onBlur={() => {setFieldTouched('email',"")}}
@@ -86,6 +118,7 @@ const LogIn = () => {
                                  autoCapitalize='none'
                                  autoCorrect={false}
                                  style={{flex: 1}}
+                                 onSubmitEditing={() => { passwordRef.current.focus(); }}
                               />
                            </View>
                            {touched.email && errors.email && (
@@ -105,6 +138,7 @@ const LogIn = () => {
                               />
                               <WidthSpacer width={10}/>
                               <TextInput
+                                 ref={passwordRef}
                                  secureTextEntry={obsecureText} 
                                  placeholder='Enter your password'
                                  onFocus={() => {setFieldTouched('password')}}

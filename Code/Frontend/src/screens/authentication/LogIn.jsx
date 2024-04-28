@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TextInput, Text, View, Image, TouchableOpacity, KeyboardAvoidingView, Keyboard, Alert } from 'react-native';
+import { TextInput, Text, View, Image, TouchableOpacity, KeyboardAvoidingView, Keyboard, Alert, ActivityIndicator } from 'react-native';
 import styles from './login.style';
 import { Formik } from 'formik'
 import * as Yup from 'yup'
@@ -7,44 +7,56 @@ import { COLORS, SIZES } from '../../constants/theme';
 import { HeightSpacer, WidthSpacer, ReusableBtn } from '../../components';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { KeyEvent } from 'react-native-keyevent';
+import * as Updates from 'expo-updates';
 
 const validationSchema = Yup.object().shape({
    password: Yup.string()
    .nullable()
-   .min(8, "Password must be at least 8 characters")
-   .required('Password must be at least 8 characters, contain one digit and one big letter')
-   .matches(/^(?=.*[0-9])/, 'Password must contain at least one digit')
-   .matches(/^(?=.*[A-Z])/, 'Password must contain at least one big letter'),
+   .required('Provide a valid password'),
    email: Yup.string()
    .email("Provide a valid email")
    .matches(/(\.com)$/, 'Provide a valid email')
    .required('Required'),
 })
 
-const LogIn = () => {
+const LogIn = ({navigation}) => {
   const [responseData, setResponseData] = useState(null)
   const [obsecureText, setObsecureText] = useState(false)
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
 
+  const sendEnterKeyEvent = () => {
+   KeyEvent.sendKeyDownEvent(KeyEvent.VK_ENTER);
+   KeyEvent.sendKeyUpEvent(KeyEvent.VK_ENTER);
+ };
+
   const loginUser = async (userData) => {
    try {
-     
-     const response = await axios.post('http://10.9.31.61:5003/api/login', userData);
+     const response = await axios.post('http://192.168.0.105:5003/api/login', userData);
      
      setResponseData(response.data); 
-     
      console.log(response.data);
-     Alert.alert('Success', response.data.message)
-   //   , () => {
-   //    navigation.navigate('LogIn');
-   //    });
+
+     await AsyncStorage.setItem('token', response.data.token);
+     
+     
+     Alert.alert('Success', response.data.message, () => {
+      setTimeout(async () => {
+         try {
+           await Updates.reloadAsync();
+           setLoading(true);
+         } catch (error) {
+           console.error('Reloading failed:', error.message);
+         }
+       }, 2000);
+    });
 
    } catch (error) {
-
-      //console.error('Error creating user:', error);
 
       if (error.response.status === 401) {
          Alert.alert('Error', 'User not found');
@@ -53,8 +65,11 @@ const LogIn = () => {
       } else {
          Alert.alert('Error', 'An error occurred while login the user.');
       }
-    } 
-  };
+    }
+    finally {
+      setLoading(false);
+  }
+};
 
   useEffect(() => {
    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -64,7 +79,6 @@ const LogIn = () => {
      setKeyboardVisible(false);
    });
 
-   // Clean up function
    return () => {
      keyboardDidShowListener.remove();
      keyboardDidHideListener.remove();
@@ -72,6 +86,11 @@ const LogIn = () => {
  }, []);
 
   return (
+   loading ? ( 
+      <View style={styles.loadingContainer}>
+         <ActivityIndicator size={SIZES.xxLarge} color={COLORS.darkGrey} />
+      </View>
+    ) : (
    <KeyboardAvoidingView style={{ flex: 1 }}>
       <View style={styles.container}>
          <View style = {{alignItems: "center"}}>
@@ -97,7 +116,6 @@ const LogIn = () => {
 
                }) => (
                   <View>
-
                      <View style={styles.wraper}>
                         <Text style={styles.label}>Email</Text>
                         <View>
@@ -139,7 +157,7 @@ const LogIn = () => {
                               <WidthSpacer width={10}/>
                               <TextInput
                                  ref={passwordRef}
-                                 secureTextEntry={obsecureText} 
+                                 secureTextEntry={!obsecureText} 
                                  placeholder='Enter your password'
                                  onFocus={() => {setFieldTouched('password')}}
                                  onBlur={() => {setFieldTouched('password', "")}}
@@ -180,7 +198,8 @@ const LogIn = () => {
          </Formik>
       </View>
    </KeyboardAvoidingView>
-  );
+  )
+);
 }
 
 export default LogIn

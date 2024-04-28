@@ -40,30 +40,27 @@ const SignIn = () => {
   const navigation = useNavigation();
 
   const createUser = async (userData) => {
-   try {
-     
-     const response = await axios.post('http://10.9.31.61:5003/api/register', userData);
-     
-     setResponseData(response.data); 
-     
-     console.log(response.data);
-     Alert.alert('Success', response.data.message, () => {
-      navigation.navigate('LogIn');
-     });
+      try {
+      
+      const response = await axios.post('http://192.168.0.105:5003/api/register', userData);
+      
+      setResponseData(response.data); 
+      console.log(response.data);
 
-   } catch (error) {
+      Alert.alert('Success', response.data.message, () => {
+         navigation.navigate('LogIn');
+      });
 
-      //console.error('Error creating user:', error);
-
-      if (error.response.status === 409) {
-         Alert.alert('Error', 'Username already exists.');
-      } else if (error.response.status === 500) {
-         Alert.alert('Error', 'Email already exists.');
-      } else {
-         Alert.alert('Error', 'An error occurred while creating the user.');
-      }
-    } 
-  };
+      } catch (error) {
+         if (error.response.status === 409) {
+            Alert.alert('Error', 'Username already exists.');
+         } else if (error.response.status === 500) {
+            Alert.alert('Error', 'Email already exists.');
+         } else {
+            Alert.alert('Error', 'An error occurred while creating the user.');
+         }
+      } 
+   };
 
   useEffect(() => {
    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -175,7 +172,7 @@ const SignIn = () => {
                               <WidthSpacer width={10}/>
                               <TextInput
                                  ref={passwordRef}
-                                 secureTextEntry={obsecureText} 
+                                 secureTextEntry={!obsecureText} 
                                  placeholder='Enter your password'
                                  onFocus={() => {setFieldTouched('password')}}
                                  onBlur={() => {setFieldTouched('password', "")}}
@@ -184,7 +181,7 @@ const SignIn = () => {
                                  autoCapitalize='none'
                                  autoCorrect={false}
                                  style={{flex: 1}}
-                                 onSubmitEditing={() => { confirmPasswordRef.current.focus(); }}
+                                 onSubmitEditing={() => {confirmPasswordRef.current.focus();}}
                               />
                               <TouchableOpacity onPress={()=> {
                                  setObsecureText(!obsecureText)
@@ -214,7 +211,7 @@ const SignIn = () => {
                               <WidthSpacer width={10}/>
                               <TextInput
                                  ref={confirmPasswordRef}
-                                 secureTextEntry={obsecureText} 
+                                 secureTextEntry={!obsecureText} 
                                  placeholder='Enter your password'
                                  onFocus={() => {setFieldTouched('confirmPassword')}}
                                  onBlur={() => {setFieldTouched('confirmPassword', "")}}

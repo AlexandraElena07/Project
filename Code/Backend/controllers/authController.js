@@ -56,5 +56,23 @@ module.exports = {
         } catch (error) {
             return next(error)
         }
+    },
+
+    logoutUser: async (req, res, next) => {
+        try {
+
+            if (!req.headers.authorization) {
+                return res.status(400).json({ status: false, message: "Authorization header missing" });
+            }
+
+            const token = req.headers.authorization.split(' ')[1];
+            
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            console.log(`User ${decoded.id} disconnected`);
+            
+            res.status(200).json({ status: true, message: 'Logout successful' });
+        } catch (error) {
+            return next(error);
+        }
     }
 }

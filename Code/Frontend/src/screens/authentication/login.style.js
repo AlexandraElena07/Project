@@ -10,11 +10,9 @@ const styles = StyleSheet.create({
     },
     image: {
         resizeMode: "contain",
-        //width: "30%",
         alignItems: "center",
         width: 100,
         height: 100,
-         // Reducerea margin-top-ului imaginii
     },
     inputWrapper: (borderColor) => ({
         borderColor: borderColor,
@@ -43,6 +41,11 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginLeft: 5,
 
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     } 
 
 })

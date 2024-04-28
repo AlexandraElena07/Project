@@ -1,8 +1,9 @@
 import { Wiew, Text } from 'react-native'
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, Profile, Favorite, Location } from '../screens';
+import { Home, Profile, Favorite, Location, ProfileAfterLogin } from '../screens';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createBottomTabNavigator();
 
@@ -13,6 +14,21 @@ const tabBarStyle = {
 };
 
 const BottomTabNavigation = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        setIsAuthenticated(!!token); 
+      } catch (error) {
+        console.error('Eroare la verificarea autentificării:', error);
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuthentication();
+  }, []);
+
   return (
     <Tab.Navigator
       initialRouteName='Home'
@@ -70,7 +86,7 @@ const BottomTabNavigation = () => {
         }}
       />
 
-      <Tab.Screen name='Profile' component={Profile} options={{
+      <Tab.Screen name='Profile' component={isAuthenticated ? ProfileAfterLogin : Profile}  options={{
           tabBarStyle: tabBarStyle,
           tabBarShowLabel: true,
           tabBarActiveTintColor: "#B50A04",
@@ -84,7 +100,7 @@ const BottomTabNavigation = () => {
             />
           ),
         }}
-      />
+      /> 
     </Tab.Navigator>
   );
 };

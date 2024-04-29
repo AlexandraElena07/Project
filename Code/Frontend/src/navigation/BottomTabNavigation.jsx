@@ -1,9 +1,9 @@
-import { Wiew, Text } from 'react-native'
 import React, {useState, useEffect} from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Home, Profile, Favorite, Location, ProfileAfterLogin } from '../screens';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AuthTab from './AuthTab';
 
 const Tab = createBottomTabNavigator();
 
@@ -86,7 +86,7 @@ const BottomTabNavigation = () => {
         }}
       />
 
-      <Tab.Screen name='Profile' component={isAuthenticated ? ProfileAfterLogin : Profile}  options={{
+      <Tab.Screen name='Profile' component={isAuthenticated ? ProfileAfterLogin : AuthTab}  options={{
           tabBarStyle: tabBarStyle,
           tabBarShowLabel: true,
           tabBarActiveTintColor: "#B50A04",

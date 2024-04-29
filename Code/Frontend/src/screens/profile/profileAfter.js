@@ -15,18 +15,16 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
     },
-    profileName: {
-        marginTop: 20,
-        fontSize: SIZES.medium
-    },
-    profileAdress: {
-        marginTop: 5,
-        fontSize: SIZES.small,
-    },
+    username: {
+        flexDirection: 'row',
+        alignItems: 'center' 
+    }, 
     profileAvatar: {
-        width: 72,
-        height: 72,
+        width: 100,
+        height: 100,
         borderRadius: 9999,
+        borderWidth: 2,
+        borderColor: COLORS.white
     },
     profileAvatarWrapper: {
         position: 'relative',
@@ -35,7 +33,22 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    }
+    },
+    option: {
+        paddingLeft: 20,
+        paddingBottom: 5
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: COLORS.black, // Culoarea de fundal a modalității
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    enlargedImage: {
+        width: SIZES.width, // Lățimea imaginii mărite să fie egală cu lățimea ecranului
+        height: SIZES.height, // Înălțimea imaginii mărite să fie egală cu înălțimea ecranului
+        resizeMode: 'contain', // Modul de redimensionare al imaginii
+    },
 })
 
 export default styles

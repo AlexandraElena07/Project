@@ -28,7 +28,7 @@ const TEXT = {
     small: 12,
     medium: 16,
     large: 20,
-    xLarge: 34,
+    xLarge: 28,
     xxLarge: 44
 }
 

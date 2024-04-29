@@ -74,5 +74,22 @@ module.exports = {
         } catch (error) {
             return next(error);
         }
+    },
+
+    updateUser: async (req, res, next) => {
+        const { username, email, profile } = req.body;
+        try {
+            await User.updateOne({email: email}, {
+                $set: {
+                    username,
+                    profile
+                },
+            });
+
+            res.status(200).json({status: true, message: "Updated"})
+        } catch (error) {
+            return next(error);
+        }
     }
+
 }

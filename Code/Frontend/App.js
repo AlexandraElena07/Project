@@ -41,7 +41,7 @@ export default function App() {
           <Stack.Screen name='Onboard' component={Onboarding} options={{headerShown: false}}/>
           <Stack.Screen name='Bottom' component={BottomTabNavigation} options={{headerShown: false}}/>
           <Stack.Screen name='Search' component={Search} options={{headerShown: false}}/>
-          <Stack.Screen name='UpdateProfile' component={UpdateProfile} options={{headerShown: true, headerBackTitle: 'Back', title: 'Update Profile', headerTintColor: COLORS.white, headerStyle: { backgroundColor: COLORS.blue}}}/>
+          <Stack.Screen name='UpdateProfile' component={UpdateProfile} options={{headerShown: true, headerBackTitle: 'Back', title: 'Update Profile', headerTintColor: COLORS.white, headerStyle: { backgroundColor: COLORS.red}}}/>
         </Stack.Navigator>
       </NavigationContainer>
     );

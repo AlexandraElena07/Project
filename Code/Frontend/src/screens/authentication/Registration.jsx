@@ -42,14 +42,12 @@ const SignIn = () => {
   const createUser = async (userData) => {
       try {
       
-      const response = await axios.post('http://192.168.0.105:5003/api/register', userData);
+      const response = await axios.post('http://10.9.31.61:5003/api/register', userData);
       
       setResponseData(response.data); 
       console.log(response.data);
 
-      Alert.alert('Success', response.data.message, () => {
-         navigation.navigate('LogIn');
-      });
+      Alert.alert('Success', response.data.message);
 
       } catch (error) {
          if (error.response.status === 409) {

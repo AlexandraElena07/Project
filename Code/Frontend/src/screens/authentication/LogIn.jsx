@@ -37,7 +37,7 @@ const LogIn = ({navigation}) => {
 
   const loginUser = async (userData) => {
    try {
-     const response = await axios.post('http://192.168.0.105:5003/api/login', userData);
+     const response = await axios.post('http://10.9.31.61:5003/api/login', userData);
      
      setResponseData(response.data); 
      console.log(response.data);

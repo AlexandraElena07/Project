@@ -100,6 +100,7 @@ const BottomTabNavigation = () => {
             />
           ),
         }}
+        initialParams={{ isAuthenticated }}
       /> 
     </Tab.Navigator>
   );

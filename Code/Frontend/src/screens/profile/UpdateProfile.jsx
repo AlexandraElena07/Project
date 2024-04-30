@@ -91,7 +91,7 @@ const UpdateProfile = () => {
         }
     
         try {
-            const response = await axios.post('http://192.168.0.105:5003/api/update', formData);
+            const response = await axios.post('http://10.9.31.61:5003/api/update', formData);
     
             if (response.data.status === true) {
                 console.log('Profil actualizat cu succes!');

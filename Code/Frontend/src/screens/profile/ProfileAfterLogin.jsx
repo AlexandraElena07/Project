@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, View, Text, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView, ScrollView, View, Text, TouchableOpacity, Image, Alert, ActivityIndicator, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import styles from './profileAfter';
@@ -9,15 +9,17 @@ import { HeightSpacer, ReusableText, WidthSpacer, ReusableBtn } from '../../comp
 import { MaterialIcons } from '@expo/vector-icons';
 import { ProfileTile } from "../../components"
 import axios from 'axios';
+import reusable from "../../components/Reusable/reusable.style";
 
 const PROFILE_PICTURE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBa24AAg4zVSuUsL4hJnMC9s3DguLgeQmZA&usqp=CAU';
 
-const ProfileAfterLogin = () => {
+const ProfileAfterLogin = ({route}) => {
     const [responseData, setResponseData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [profile, setProfile] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -26,17 +28,18 @@ const ProfileAfterLogin = () => {
     const getDataFromDatabase = async () => {
         try {
           const token = await AsyncStorage.getItem('token');
-          const response = await axios.get('http://192.168.0.105:5003/api/users', {
+          const response = await axios.get('http://10.9.31.61:5003/api/users', {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
           setUsername(response.data.username);
           setEmail(response.data.email);
+          setProfile(response.data.profile);
+        
           setIsAuthenticated(true);
           setResponseData(response.data);
-          setProfile(response.data.profile);
-          console.log(response.data);
+
         } catch (error) {
           console.error('Error fetching username:', error);
           if (error.response && error.response.status === 403) {
@@ -66,6 +69,37 @@ const ProfileAfterLogin = () => {
             setLoading(false);
         }
     };
+
+    const handleDeleteAccount = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            const response = await axios.delete('http://10.9.31.61:5003/api/users', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+            });
+
+        await AsyncStorage.removeItem('token');
+      
+        Alert.alert('Success', response.data.message, () => {
+           setTimeout(async () => {
+                try {
+                    await Updates.reloadAsync();
+                    setLoading(true);
+                } catch (error) {
+                    console.error('Reloading failed:', error.message);
+                }
+            }, 2000);
+        });
+
+        
+
+        } catch (error) {
+            Alert.alert('Error', 'An error occurred while deleting your account. Please try again later.');
+            console.error('Error:', error);
+        }
+    };
+    
     
     return (
         loading ? ( 
@@ -116,7 +150,68 @@ const ProfileAfterLogin = () => {
                     <View>
                         <ProfileTile title={"Change personal information"} icon={'person'} onPress={() => navigation.navigate('UpdateProfile', {data: responseData})}/>
                         <HeightSpacer height={2} />
-                        <ProfileTile title={"Delete your account"} icon={'delete'} />
+                        <ProfileTile title={"Delete your account"} icon={'delete'} onPress={() => setModalVisible(true)}/>
+
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={modalVisible}
+                            onRequestClose={() => {
+                            setModalVisible(!modalVisible);
+                            }}>
+                            
+                            <View style={styles.centeredView}>
+                                <View style={styles.modalView}>
+
+                                    <Text style={styles.modalText}>Delete your account and personal info</Text>
+
+                                    <Text style={styles.textStyle}>Deleting your account is a permanent action and will result in the loss of access to all features of this app. Your saved places, favorite lists, followed pages, and personal information will be permanently removed.</Text>
+
+                                    <View style={styles.profile}>
+                                        <View style={styles.profileAvatarWrapper}>
+                                            <Image
+                                                alt="Profile picture"
+                                                source={{ uri: profile ? profile : PROFILE_PICTURE }}
+                                                style={styles.profileAvatarDelete}
+                                            />
+                                        </View>
+                                        <HeightSpacer height={10} />
+                                        <View style={styles.email}>
+                                            <ReusableText
+                                                text={email}
+                                                family={'medium'}
+                                                size={SIZES.small}
+                                                color={COLORS.darkGrey}
+                                            />                  
+                                        </View>
+                                        <HeightSpacer height={10} />
+                                    </View>
+
+                                    <Text style={styles.textStyle}>If you wish to proceed with deleting your account, please click the DELETE button below.</Text>
+
+                                    <Text style={styles.textStyle}>If you have changed your mind, click CANCEL.</Text>
+                                    
+                                    <HeightSpacer height={150} />
+                                    
+                                    <View style={reusable.rowWithSpace('space-between')}>
+                                        <View style={reusable.rowWithSpace('flex-start')}>
+
+                                            <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
+                                                <Text style={styles.buttonTextDelete}>Delete</Text>
+                                            </TouchableOpacity>
+
+                                            <WidthSpacer width={35}/>
+
+                                            <TouchableOpacity style={styles.buttonCancel} onPress={() => setModalVisible(!modalVisible)}>
+                                                <Text style={styles.buttonTextCancel}>Cancel</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
+
+
                     </View>
 
                     <HeightSpacer height={20} />

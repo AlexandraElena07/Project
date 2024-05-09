@@ -8,6 +8,8 @@ import Registration from "./authentication/Registration"
 import LogIn from "./authentication/LogIn"
 import ProfileAfterLogin from "./profile/ProfileAfterLogin"
 import UpdateProfile from "./profile/UpdateProfile"
+import Contact from "./profile/Contact"
+import ProfileImage from "./profile/ProfileImage"
 
 export {
     Onboarding,
@@ -19,5 +21,7 @@ export {
     Registration,
     LogIn,
     ProfileAfterLogin,
-    UpdateProfile
+    UpdateProfile,
+    Contact,
+    ProfileImage
 }

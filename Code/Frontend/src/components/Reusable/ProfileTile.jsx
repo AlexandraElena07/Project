@@ -1,17 +1,23 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from 'react'
+import React, {useContext} from 'react'
 import { COLORS, SIZES, TEXT } from "../../constants/theme";
 import ReusableText from "./ReusableText";
 import WidthSpacer from "./WidthSpacer";
 import reusable from "./reusable.style";
 import { MaterialIcons } from '@expo/vector-icons';
+import themeContext from "../../constants/themeContext";
+import themeDark from "../../constants/themeDark";
 
 const ProfileTile = ({onPress, title, icon}) => {
+
+    const userTheme = useContext(themeContext);
+    const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
+
     return(
         <TouchableOpacity style={styles.container} onPress={onPress}>
              <View style={reusable.rowWithSpace('space-between')}>
                 <View style={reusable.rowWithSpace('flex-start')}>
-                    <MaterialIcons name={icon} size={SIZES.medium}/>
+                    <MaterialIcons name={icon} size={SIZES.medium} color={currentTheme.color}/>
                     
                     <WidthSpacer width={20}/>
 
@@ -19,7 +25,7 @@ const ProfileTile = ({onPress, title, icon}) => {
                         text={title}
                         family={''}
                         size={SIZES.medium}
-                        color={COLORS.black}
+                        color={currentTheme.color}
                     />
 
             </View>
@@ -36,7 +42,6 @@ const styles = StyleSheet.create({
     container: {
         padding: 15,
         width: SIZES.width,
-        backgroundColor: COLORS.white,
         borderRadius: 0,
     }
 })

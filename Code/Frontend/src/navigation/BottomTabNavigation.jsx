@@ -4,6 +4,7 @@ import { Home, Profile, Favorite, Location, ProfileAfterLogin } from '../screens
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuthTab from './AuthTab';
+import { COLORS } from '../constants/theme';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,22 +33,20 @@ const BottomTabNavigation = () => {
   return (
     <Tab.Navigator
       initialRouteName='Home'
-      activeColor='#EB6A58'
       tabBarHideKeyBoard={true}
       headerShown={false}
-      inactiveColor='#3e2465'
       BarStyle={{paddingBottom:48}}
     >
       <Tab.Screen name='Home' component={Home} options={{
           tabBarStyle: tabBarStyle,
           tabBarShowLabel: true,
-          tabBarActiveTintColor: "#B50A04",
-          tabBarInactiveTintColor: "#666262",
+          tabBarActiveTintColor: COLORS.red,
+          tabBarInactiveTintColor: COLORS.inactiveIcon,
           headerShown: false,
           tabBarIcon: ({focused}) => (
             <Ionicons 
               name={focused ? "home" : "home-outline"}
-              color={focused ? '#B50A04' : '#666262'}
+              color={focused ? COLORS.red : COLORS.inactiveIcon}
               size={26}
             />
           ),
@@ -57,13 +56,13 @@ const BottomTabNavigation = () => {
       <Tab.Screen name='Location' component={Location} options={{
           tabBarStyle: tabBarStyle,
           tabBarShowLabel: true,
-          tabBarActiveTintColor: "#B50A04",
-          tabBarInactiveTintColor: "#666262",
+          tabBarActiveTintColor: COLORS.red,
+          tabBarInactiveTintColor: COLORS.inactiveIcon,
           headerShown: false,
           tabBarIcon: ({focused}) => (
             <Ionicons 
               name={focused ? "location" : "location-outline"}
-              color={focused ? '#B50A04' : '#666262'}
+              color={focused ? COLORS.red : COLORS.inactiveIcon}
               size={26}
             />
           ),
@@ -73,13 +72,13 @@ const BottomTabNavigation = () => {
       <Tab.Screen name='Favorite' component={Favorite} options={{
           tabBarStyle: tabBarStyle,
           tabBarShowLabel: true,
-          tabBarActiveTintColor: "#B50A04",
-          tabBarInactiveTintColor: "#666262",
+          tabBarActiveTintColor: COLORS.red,
+          tabBarInactiveTintColor: COLORS.inactiveIcon,
           headerShown: false,
           tabBarIcon: ({focused}) => (
             <Ionicons 
               name={focused ? "heart" : "heart-outline"}
-              color={focused ? '#B50A04' : '#666262'}
+              color={focused ? COLORS.red : COLORS.inactiveIcon}
               size={26}
             />
           ),
@@ -89,18 +88,17 @@ const BottomTabNavigation = () => {
       <Tab.Screen name='Profile' component={isAuthenticated ? ProfileAfterLogin : AuthTab}  options={{
           tabBarStyle: tabBarStyle,
           tabBarShowLabel: true,
-          tabBarActiveTintColor: "#B50A04",
-          tabBarInactiveTintColor: "#666262",
+          tabBarActiveTintColor: COLORS.red,
+          tabBarInactiveTintColor: COLORS.inactiveIcon,
           headerShown: false,
           tabBarIcon: ({focused}) => (
             <Ionicons 
               name={focused ? "person" : "person-outline"}
-              color={focused ? '#B50A04' : '#666262'}
+              color={focused ? COLORS.red : COLORS.inactiveIcon}
               size={26}
             />
           ),
         }}
-        initialParams={{ isAuthenticated }}
       /> 
     </Tab.Navigator>
   );

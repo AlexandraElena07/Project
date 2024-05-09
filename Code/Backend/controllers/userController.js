@@ -9,7 +9,7 @@ module.exports = {
         } catch (error) {
             return next(error)
         }
-    },
+    }, 
 
     getUser: async (req, res, next) => {
         const user_id = req.user.id;
@@ -23,7 +23,6 @@ module.exports = {
             }
     
             res.status(200).json(user);
-    
         } catch (error) {
             return next(error);
         }

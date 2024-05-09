@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Text, View, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput, Alert } from 'react-native'
 import styles from './updateProfile.style';
 import { HeightSpacer, ReusableText, WidthSpacer, ReusableBtn } from '../../components';
@@ -9,6 +9,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import * as Updates from 'expo-updates';
+import themeContext from '../../constants/themeContext';
+import themeDark from '../../constants/themeDark';
 
 const PROFILE_PICTURE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBa24AAg4zVSuUsL4hJnMC9s3DguLgeQmZA&usqp=CAU';
 
@@ -18,6 +20,9 @@ const UpdateProfile = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const route = useRoute();
+
+    const userTheme = useContext(themeContext);
+    const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
 
     let result = {};
 
@@ -92,7 +97,7 @@ const UpdateProfile = () => {
     
         try {
             const response = await axios.post('http://10.9.31.61:5003/api/update', formData);
-    
+            
             if (response.data.status === true) {
                 console.log('Profil actualizat cu succes!');
                 
@@ -112,142 +117,140 @@ const UpdateProfile = () => {
             }
     
         } catch (error) {
-            console.error('Eroare la actualizarea profilului:', error);
-            Alert.alert('Error', 'An error occurred while updating profile');
+            if (error.response && error.response.status === 409) {
+                Alert.alert('Error', 'This username already exist.');
+            } else {
+                Alert.alert('Error', 'An error occurred while updating profile.');
+            }
         }   
 
     }
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView contentContainerStyle={styles.container}>
-            <View>
-                <ReusableText
-                    text={'Change your personal data'}
-                    family={''}
-                    size={TEXT.xLarge}
-                    color={COLORS.black}
-                />
+        <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background }}>
+            <ScrollView contentContainerStyle={[styles.container, {backgroundColor: currentTheme.background}]}>
+                <View>
+                    <ReusableText
+                        text={'Change your personal data'}
+                        family={''}
+                        size={TEXT.xLarge}
+                        color={currentTheme.color}
+                    />
 
-                <HeightSpacer height={30}/>
+                    <HeightSpacer height={30}/>
+
+                    <ReusableText
+                        text={'Profile Photo'}
+                        family={'semibold'}
+                        size={TEXT.large}
+                        color={currentTheme.color}
+                    />
+
+                    <HeightSpacer height={20}/>
+
+                    <View style={reusable.rowWithSpace('space-between')}>
+                        <View style={reusable.rowWithSpace('flex-start')}>
+                            <TouchableOpacity onPress={() => takePhoto()}>
+                                    <View style={styles.profileAvatarWrapper}>             
+                                        <Image
+                                            alt="Profile picture"
+                                            source={{ uri: profile ? profile : PROFILE_PICTURE }}
+                                            style={styles.profileAvatar}
+                                        />  
+                                        <TouchableOpacity style={styles.cameraIconContainer} onPress={takePhoto}>
+                                            <MaterialIcons name="photo-camera" style={styles.cameraIcon} />
+                                        </TouchableOpacity>    
+                                    </View>
+                                </TouchableOpacity>
+                                
+                            <WidthSpacer width={20}/>
+                            
+                            <View>
+                                <TouchableOpacity style={styles.buttonAdd} onPress={selectImage}>
+                                    <MaterialIcons name="edit" size={SIZES.medium} color={COLORS.blue} marginRight={5} />
+                                    <Text style={styles.buttonTextAdd}>Change picture</Text>
+                                </TouchableOpacity>
+
+                                <HeightSpacer height={15}/>
+
+                                <TouchableOpacity style={styles.buttonRemove} onPress={removeImage}>
+                                    <MaterialIcons name="delete" size={SIZES.medium} color={COLORS.red} marginRight={5} />
+                                    <Text style={styles.buttonTextRemove}>Remove picture</Text>
+                                </TouchableOpacity>
+                            </View>     
+                        </View>  
+                    </View>
+                </View>
+
+                <HeightSpacer height={15}/>
+
+                <Text style = {{color:currentTheme.color}}>JPG or PNG format. </Text>
+                <Text style = {{color:currentTheme.color}}>Picture layout: square. </Text>
+
+                <HeightSpacer height={35}/>
 
                 <ReusableText
-                    text={'Profile Photo'}
+                    text={'Personal Data'}
                     family={'semibold'}
                     size={TEXT.large}
-                    color={COLORS.black}
+                    color={currentTheme.color}
                 />
 
                 <HeightSpacer height={20}/>
 
-                <View style={reusable.rowWithSpace('space-between')}>
-                    <View style={reusable.rowWithSpace('flex-start')}>
-                        <TouchableOpacity onPress={() => takePhoto()}>
-                                <View style={styles.profileAvatarWrapper}>
-                                
-                                    <Image
-                                        alt="Profile picture"
-                                        source={{ uri: profile ? profile : PROFILE_PICTURE }}
-                                        style={styles.profileAvatar}
-                                    />
-                                    
-                                    <TouchableOpacity style={styles.cameraIconContainer} onPress={takePhoto}>
-                                        <MaterialIcons name="photo-camera" style={styles.cameraIcon} />
-                                    </TouchableOpacity>
-                                    
-                                </View>
-                            </TouchableOpacity>
-                            
-                        <WidthSpacer width={20}/>
-                        
-                        <View>
-                            <TouchableOpacity style={styles.buttonAdd} onPress={selectImage}>
-                                <MaterialIcons name="edit" size={SIZES.medium} color={COLORS.blue} marginRight={5} />
-                                <Text style={styles.buttonTextAdd}>Change picture</Text>
-                            </TouchableOpacity>
-
-                            <HeightSpacer height={15}/>
-
-                            <TouchableOpacity style={styles.buttonRemove} onPress={removeImage}>
-                                <MaterialIcons name="delete" size={SIZES.medium} color={COLORS.red} marginRight={5} />
-                                <Text style={styles.buttonTextRemove}>Remove picture</Text>
-                            </TouchableOpacity>
-                        </View>
-                            
-                    </View>
-
-                    
-
-                </View>
-
-            </View>
-
-            <HeightSpacer height={15}/>
-
-            <Text style = {{color:COLORS.darkGrey}}>JPG or PNG format. </Text>
-            <Text style = {{color:COLORS.darkGrey}}>Picture layout: square. </Text>
-
-            <HeightSpacer height={35}/>
-
-            <ReusableText
-                    text={'Personal Data'}
-                    family={'semibold'}
-                    size={TEXT.large}
-                    color={COLORS.black}
-            />
-
-            <HeightSpacer height={20}/>
-
-            <ReusableText
-                text={'Username:'}
-                family={''}
-                size={TEXT.medium}
-                color={COLORS.darkGrey}
-            />
-
-            <HeightSpacer height={5}/>
-
-            <TextInput                     
-                placeholder='Enter your username'
-                autoCapitalize='none'
-                autoCorrect={false}
-                style={styles.input}
-                defaultValue={username}
-                onChangeText={(text) => setUsername(text)}               
-            />
-
-            <HeightSpacer height={10}/>
-
-            <ReusableText
-                text={'Email:'}
-                family={''}
-                size={TEXT.medium}
-                color={COLORS.darkGrey}
-            />
-
-            <HeightSpacer height={5}/>
-
-            <TextInput                     
-                placeholder='Enter your email'
-                autoCapitalize='none'
-                autoCorrect={false}
-                style={styles.inputEmail}
-                defaultValue={email}
-                editable={false}
-            />
-            <HeightSpacer height={55}/>
-
-            <View style={{alignItems: 'center'}}>
-                <ReusableBtn
-                                onPress={() => updateProfile()}
-                                btnText={"Update Profile"}
-                                width={(SIZES.width - 50)/2}
-                                backgroundColor={COLORS.white}
-                                borderColor={COLORS.blue}
-                                borderWidth={2}
-                                textColor={COLORS.blue}
+                <ReusableText
+                    text={'Username:'}
+                    family={''}
+                    size={TEXT.medium}
+                    color={currentTheme.color}
                 />
-            </View>
+
+                <HeightSpacer height={5}/>
+
+                <TextInput                     
+                    placeholder='Enter your username'
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    style={styles.input}
+                    defaultValue={username}
+                    onChangeText={(text) => setUsername(text)}
+                    color={currentTheme.color}           
+                />
+
+                <HeightSpacer height={10}/>
+
+                <ReusableText
+                    text={'Email:'}
+                    family={''}
+                    size={TEXT.medium}
+                    color={currentTheme.color}
+                />
+
+                <HeightSpacer height={5}/>
+
+                <TextInput                     
+                    placeholder='Enter your email'
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    style={styles.inputEmail}
+                    defaultValue={email}
+                    editable={false}
+                    backgroundColor={currentTheme.backgroundTextInput}
+                    color={currentTheme.color}
+                />
+                <HeightSpacer height={55}/>
+
+                <View style={{alignItems: 'center'}}>
+                    <ReusableBtn
+                        onPress={() => updateProfile()}
+                        btnText={"Update Profile"}
+                        width={(SIZES.width - 50)/2}
+                        backgroundColor={currentTheme.backgroundButton}
+                        borderColor={COLORS.blue}
+                        borderWidth={2}
+                        textColor={COLORS.blue}
+                    />
+                </View>
             </ScrollView>
         </SafeAreaView>
     )

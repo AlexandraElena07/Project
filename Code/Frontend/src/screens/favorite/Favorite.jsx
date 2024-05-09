@@ -1,14 +1,20 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useContext } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import themeContext from '../../constants/themeContext';
+import themeDark from '../../constants/themeDark';
 
 const Favorite = () => {
-  return (
-     <View>
-        <Text>Favorite</Text>
-     </View>
-  );
+    const userTheme = useContext(themeContext);
+    const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
+
+    return (
+        <SafeAreaView style={{ flex: 1,  backgroundColor: currentTheme.background}}>
+            <ScrollView style={ { backgroundColor: currentTheme.background }}>
+                <Text style={{ color: currentTheme.color}}>Favorite</Text>
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
 
-export default Favorite
-
-const style = StyleSheet.create({})
+export default Favorite;
+ 

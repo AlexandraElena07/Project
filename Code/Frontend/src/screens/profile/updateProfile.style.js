@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
     },
     buttonAdd: {
         flexDirection: 'row',
-        backgroundColor: COLORS.white,
         height: 34,
         width: 170,
         borderRadius: 9,
@@ -30,15 +29,14 @@ const styles = StyleSheet.create({
         borderColor: COLORS.blue,
         justifyContent: 'center',
         alignItems: 'center',
-      },
-      buttonTextAdd: {
+    },
+    buttonTextAdd: {
         color: COLORS.blue,
         fontSize: 16,
         fontWeight: 'bold',
-      },
-      buttonRemove: {
+    },
+    buttonRemove: {
         flexDirection: 'row',
-        backgroundColor: COLORS.white,
         height: 34,
         width: 170,
         borderRadius: 9,
@@ -46,13 +44,13 @@ const styles = StyleSheet.create({
         borderColor: COLORS.red,
         justifyContent: 'center',
         alignItems: 'center',
-      },
-      buttonTextRemove: {
+    },
+    buttonTextRemove: {
         color: COLORS.red,
         fontSize: 16,
         fontWeight: 'bold',
-      },
-      input: {
+    },
+    input: {
         borderWidth: 1,
         borderRadius: 9,
         borderColor: COLORS.grey,
@@ -85,8 +83,7 @@ const styles = StyleSheet.create({
     cameraIcon: {
         fontSize: 24,
         color: COLORS.darkGrey
-
-    },
+    }
 })
 
 export default styles

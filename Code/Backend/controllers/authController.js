@@ -6,7 +6,6 @@ const jwt = require("jsonwebtoken");
 
 module.exports = {
     createUser: async (req, res, next) => {
-
         const newUser = new User({
             username: req.body.username,
             email: req.body.email,
@@ -14,7 +13,6 @@ module.exports = {
         });
 
         try {
-
             const existingUser = await User.findOne({ username: req.body.username });
             if (existingUser) {
                 return res.status(409).json({ status: false, message: "Username already exists" });
@@ -60,7 +58,6 @@ module.exports = {
 
     logoutUser: async (req, res, next) => {
         try {
-
             if (!req.headers.authorization) {
                 return res.status(400).json({ status: false, message: "Authorization header missing" });
             }
@@ -77,19 +74,53 @@ module.exports = {
     },
 
     updateUser: async (req, res, next) => {
-        const { username, email, profile } = req.body;
+        const { username: newUsername, email, profile } = req.body;
+    
         try {
-            await User.updateOne({email: email}, {
+            const existingUser = await User.findOne({ email });
+            if (!existingUser) {
+                return res.status(404).json({ status: false, message: "User not found" });
+            }
+            
+            if (newUsername !== existingUser.username) {
+                
+                const usernameExists = await User.findOne({ username: newUsername });
+                if (usernameExists) {
+                    return res.status(409).json({ status: false, message: "Username already exists" });
+                }
+            }
+    
+            await User.updateOne({ email }, {
                 $set: {
-                    username,
+                    username: newUsername,
                     profile
                 },
             });
+    
+            res.status(200).json({ status: true, message: "Updated" });
+        } catch (error) {
+            return next(error);
+        }
+    },    
 
-            res.status(200).json({status: true, message: "Updated"})
+    saveTheme: async(req, res, next) => {
+        const { username, theme } = req.body;
+
+        try {
+            const existingUser = await User.findOne({ username: req.body.username });
+            if (!existingUser) {
+                return res.status(409).json({ status: false, message: "Username doesn't exists" });
+            }
+
+            await User.updateOne({username: username}, {
+                $set: {
+                    theme
+                },
+            });
+    
+            res.status(200).json({ status: true, message: "Theme successfully added" });
         } catch (error) {
             return next(error);
         }
     }
-
 }

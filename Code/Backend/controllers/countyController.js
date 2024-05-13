@@ -2,7 +2,7 @@ const County = require("../models/County");
 
 module.exports = {
     addCounty: async (req, res, next) => {
-        const {county, description, imageUrl, region, popular} = req.body;
+        const {county, description, imageUrl, videoId, popular} = req.body;
 
         try {
 
@@ -10,7 +10,7 @@ module.exports = {
                 county,
                 description,
                 imageUrl,
-                region,
+                videoId,
                 popular
             });
 
@@ -30,11 +30,11 @@ module.exports = {
     getCounties: async (req, res, next) => {
         try {
             
-            const counties = await County.find({},{county: 1, _id:1, imageUrl: 1})
+            const counties = await County.find({},{county: 1, _id:1, imageUrl: 1, description: 1, videoId: 1})
 
             res.status(200).json({counties})
         } catch (error) {
-            
+            return next(error);
         }
     },
 

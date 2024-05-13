@@ -339,7 +339,17 @@ const ProfileAfterLogin = () => {
                             <View style={styles.centeredView}>
                                 <View style={[styles.modalViewAbout, {backgroundColor: currentTheme.background}]}>
                                     <View style={[styles.centerView, {backgroundColor: currentTheme.background}]}>
-                                        <Image source={require('../../../assets/images/logo2.png')} style={styles.image}/>
+                                        {userTheme === 'dark' ? (
+                                        <Image
+                                            source={require('../../../assets/images/logo2White.png')}
+                                            style={styles.image}
+                                        />
+                                        ) : (
+                                        <Image
+                                            source={require('../../../assets/images/logo2.png')}
+                                            style={styles.image}
+                                        />
+                                        )}
                                     </View>
 
                                     <HeightSpacer height={50} />

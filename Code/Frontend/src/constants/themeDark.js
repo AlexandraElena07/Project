@@ -8,7 +8,9 @@ const themeDark = {
         backgroundButton: COLORS.white,
         backgroundTextInput: '#f5f5f5',
         backgroundBorder: COLORS.red,
-        backgroundHeader: COLORS.red
+        backgroundHeader: COLORS.red,
+        backgroundBottombuttons: '#ccc',
+        backgroundIonicons: '',
         },
     dark: {
         themeDark: 'dark',
@@ -17,7 +19,8 @@ const themeDark = {
         backgroundButton: '#141414',
         backgroundTextInput: '#141414',
         backgroundBorder: COLORS.white,
-        backgroundHeader: COLORS.red
+        backgroundHeader: COLORS.red,
+        backgroundBottombuttons: '#101010',
     }
 }
 

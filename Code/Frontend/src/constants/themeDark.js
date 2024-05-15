@@ -10,7 +10,7 @@ const themeDark = {
         backgroundBorder: COLORS.red,
         backgroundHeader: COLORS.red,
         backgroundBottombuttons: '#ccc',
-        backgroundIonicons: '',
+        backgroundTiles: '#F5F5F5',
         },
     dark: {
         themeDark: 'dark',
@@ -21,6 +21,7 @@ const themeDark = {
         backgroundBorder: COLORS.white,
         backgroundHeader: COLORS.red,
         backgroundBottombuttons: '#101010',
+        backgroundTiles: '#363435',
     }
 }
 

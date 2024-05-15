@@ -3,7 +3,7 @@ import { useFonts } from 'expo-font';
 import * as Splashscreen from "expo-splash-screen";
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Onboarding, Search, UpdateProfile, Contact, ProfileImage, CountyDetails, AboutCounty} from './src/screens';
+import { Onboarding, Search, UpdateProfile, Contact, ProfileImage, CountyDetails, AboutCounty, TouristAttraction, PlaceDetails} from './src/screens';
 import BottomTabNavigation from './src/navigation/BottomTabNavigation';
 import { DefaultTheme } from 'react-native-paper';
 import ThemeContext, { ThemeProvider } from './src/constants/themeContext';
@@ -39,7 +39,7 @@ const onLayoutRootView = useCallback(async () => {
 
   const getDataFromDatabase = async () => {
     try {
-      const response = await axios.get('http://10.9.31.61:5003/api/getcounty');
+      const response = await axios.get('http://10.9.31.61:5003/api/counties');
       setCounties(response.data.counties);
     } catch (error) {
       console.error('Error fetching data from database:', error);
@@ -84,7 +84,9 @@ const onLayoutRootView = useCallback(async () => {
                   title: 'Discover ' + (route.params && route.params.item ? route.params.item.county : 'County') + ' County',
                   headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader } 
               })} />
-              
+
+              <Stack.Screen name='TouristAttraction' component={TouristAttraction} options={{ headerShown: false }} />
+              <Stack.Screen name='PlaceDetails' component={PlaceDetails} options={{ headerShown: false }} />
             </Stack.Navigator>
           </NavigationContainer>
         )}

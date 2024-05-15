@@ -5,7 +5,8 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true}, 
     password: {type: String, required: true},
     profile: {type: String, default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBa24AAg4zVSuUsL4hJnMC9s3DguLgeQmZA&usqp=CAU"},
-    theme: {type: String, default: 'light'}
+    theme: {type: String, default: 'light'},
+    role: { type: String, default: 'user' }
 })
 
 module.exports = mongoose.model("User", UserSchema);

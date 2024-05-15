@@ -23,7 +23,7 @@ const Home = () => {
    const getDataFromDatabase = async () => {
     try {
         
-        const response = await axios.get('http://10.9.31.61:5003/api/getcounty');
+        const response = await axios.get('http://10.9.31.61:5003/api/counties');
         setCounties(response.data.counties);
 
     } catch (error) {

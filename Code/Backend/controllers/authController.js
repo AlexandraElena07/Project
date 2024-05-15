@@ -27,29 +27,39 @@ module.exports = {
     }, 
 
 
-    loginUser: async (req, res, next)=> {
+    loginUser: async (req, res, next) => {
         try {
             const user = await User.findOne({email: req.body.email});
-
-            if(!user) {
+    
+            if (!user) {
                 return res.status(401).json({status: false, message: "User not found"});
             }
-
+    
             const decryptedPassword = CryptoJS.AES.decrypt(user.password, process.env.SECRET)
             const decryptedString = decryptedPassword.toString(CryptoJS.enc.Utf8);
-
-            if(decryptedString !== req.body.password) {
-                return res.status(501).json({status: false, message: "Wrong password"});
+    
+            if (decryptedString !== req.body.password) {
+                return res.status(401).json({status: false, message: "Wrong password"});
             }
-
+    
+            if (!user.role) {
+                return res.status(403).json({status: false, message: "User role not defined"});
+            }
+    
+            const validRoles = ["user", "admin"];
+            if (!validRoles.includes(user.role)) {
+                return res.status(403).json({status: false, message: "Invalid user role"});
+            }
+    
             const userToken = jwt.sign(
                 {
-                    id: user._id
+                    id: user._id,
+                    role: user.role 
                 }, process.env.JWT_SECRET, {expiresIn: "360d"}
             );
-
+    
             const user_id = user._id;
-
+    
             res.status(200).json({status: true, id: user_id, token: userToken})
         } catch (error) {
             return next(error)

@@ -2,7 +2,6 @@ import ReusableText from "./Reusable/ReusableText";
 import ReusableBtn from "./Buttons/ReusableBtn";
 import HeightSpacer from "./Reusable/HeightSpacer";
 import WidthSpacer from "./Reusable/WidthSpacer";
-// import ReusableTile from "./Reusable/ReusableTile";
 import ProfileTile from "./Reusable/ProfileTile"
 import NetworkImage from "./Reusable/NetworkImage";
 import AppBar from "./Reusable/AppBar";
@@ -14,10 +13,9 @@ export {
     ReusableBtn,
     HeightSpacer,
     WidthSpacer,
-    // ReusableTile,
     ProfileTile,
     NetworkImage,
     AppBar,
     DescriptionText,
-    BottomButtons
+    BottomButtons,
 }

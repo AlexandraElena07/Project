@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { SIZES } from "../constants/theme";
+import { COLORS, SIZES } from "../constants/theme";
 
 const styles = StyleSheet.create({
     container: {
@@ -16,7 +16,10 @@ const styles = StyleSheet.create({
       marginTop: 20, 
     },
     switchSelector: {
-      width: 200, 
+      width: 200,
+      borderWidth: 1,
+      borderRadius: 20,
+      borderColor: COLORS.red
     },
   });
 

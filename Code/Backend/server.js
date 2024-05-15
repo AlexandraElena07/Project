@@ -6,6 +6,9 @@ const errorHandler = require('./middleware/errorHandling')
 const authRouter = require("./routes/auth")
 const userRouter = require("./routes/user")
 const contactRouter = require("./routes/contact")
+const countyRouter = require("./routes/county")
+const placeRouter = require("./routes/place")
+
 const port = 5003
 
 dotenv.config();
@@ -20,6 +23,8 @@ app.use(errorHandler);
 app.use('/api/', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/', contactRouter);
+app.use('/api/counties', countyRouter);
+app.use('/api/places', placeRouter);
 
 app.get('/', (req, res) => res.send('Hello World!'))
 app.listen(process.env.PORT || port, () => console.log(`Example app listening on port ${process.env.PORT}!`))

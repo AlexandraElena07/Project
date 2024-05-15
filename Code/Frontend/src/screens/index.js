@@ -10,6 +10,10 @@ import ProfileAfterLogin from "./profile/ProfileAfterLogin"
 import UpdateProfile from "./profile/UpdateProfile"
 import Contact from "./profile/Contact"
 import ProfileImage from "./profile/ProfileImage"
+import CountyDetails from "./details/CountyDetails"
+import AboutCounty from "./details/AboutCounty"
+import TouristAttraction from "./details/TouristAttraction"
+import PlaceDetails from "./details/PlaceDetails"
 
 export {
     Onboarding,
@@ -23,5 +27,9 @@ export {
     ProfileAfterLogin,
     UpdateProfile,
     Contact,
-    ProfileImage
+    ProfileImage,
+    CountyDetails,
+    AboutCounty, 
+    TouristAttraction,
+    PlaceDetails
 }

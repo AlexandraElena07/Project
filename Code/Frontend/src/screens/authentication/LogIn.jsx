@@ -137,6 +137,7 @@ const LogIn = ({navigation}) => {
                                  autoCorrect={false}
                                  style={{flex: 1}}
                                  onSubmitEditing={() => { passwordRef.current.focus(); }}
+                                 placeholderTextColor={COLORS.grey}
                               />
                            </View>
                            {touched.email && errors.email && (
@@ -166,6 +167,7 @@ const LogIn = ({navigation}) => {
                                  autoCapitalize='none'
                                  autoCorrect={false}
                                  style={{flex: 1}}
+                                 placeholderTextColor={COLORS.grey}
                               />
                               <TouchableOpacity onPress={()=> {
                                  setObsecureText(!obsecureText)

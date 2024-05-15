@@ -4,7 +4,7 @@ import styles from './profileAfter'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const picture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQha5fuRV9s_zsvk3v-VERQ-KZbe76mE6xGMw&usqp=CAU';
+const picture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs6SXBiscMksrAbCit__F5GntSP9nC3p0_eg&usqp=CAU';
 
 const ProfileImage = () => {
     const [profile, setProfile] = useState('');

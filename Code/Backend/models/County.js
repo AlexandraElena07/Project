@@ -4,7 +4,7 @@ const CountySchema = new mongoose.Schema({
     county: {type: String, require: true},
     description: {type: String, require: true},
     imageUrl: {type: String, require: true},
-    region: {type: String, require: true},
+    videoId: {type: String, require: true},
     popular: [
         {
             type: mongoose.Schema.Types.ObjectId,

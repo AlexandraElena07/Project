@@ -121,6 +121,7 @@ const SignIn = () => {
                                  autoCorrect={false}
                                  style={{flex: 1}}
                                  onSubmitEditing={() => { usernameRef.current.focus(); }}
+                                 placeholderTextColor={COLORS.grey}
                               />
                            </View>
                            {touched.email && errors.email && (
@@ -150,6 +151,7 @@ const SignIn = () => {
                                  autoCorrect={false}
                                  style={{flex: 1}}
                                  onSubmitEditing={() => { passwordRef.current.focus(); }}
+                                 placeholderTextColor={COLORS.grey}
                               />
                            </View>
                            {touched.username && errors.username && (
@@ -180,6 +182,7 @@ const SignIn = () => {
                                  autoCorrect={false}
                                  style={{flex: 1}}
                                  onSubmitEditing={() => {confirmPasswordRef.current.focus();}}
+                                 placeholderTextColor={COLORS.grey}
                               />
                               <TouchableOpacity onPress={()=> {
                                  setObsecureText(!obsecureText)
@@ -218,6 +221,7 @@ const SignIn = () => {
                                  autoCapitalize='none'
                                  autoCorrect={false}
                                  style={{flex: 1}}
+                                 placeholderTextColor={COLORS.grey}
                               />
                               <TouchableOpacity onPress={()=> {
                                  setObsecureText(!obsecureText)

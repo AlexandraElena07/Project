@@ -31,5 +31,5 @@ export {
     CountyDetails,
     AboutCounty, 
     TouristAttraction,
-    PlaceDetails
+    PlaceDetails,
 }

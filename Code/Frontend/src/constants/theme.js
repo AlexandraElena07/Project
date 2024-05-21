@@ -12,7 +12,8 @@ const COLORS = {
     darkGrey:"#4A4949",
     lightBlue: "#1877F2",
     dark: "#1e1e1e",
-    inactiveIcon: "#666262"
+    inactiveIcon: "#666262",
+    yellow: "#f0c51d"
 };
 
 const SIZES = {
@@ -29,7 +30,7 @@ const SIZES = {
 const TEXT = {
     xSmall: 10,
     small: 14,
-    medium: 16,
+    medium: 18,
     large: 20,
     xLarge: 28,
     xxLarge: 44

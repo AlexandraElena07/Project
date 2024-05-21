@@ -10,7 +10,11 @@ const themeDark = {
         backgroundBorder: COLORS.red,
         backgroundHeader: COLORS.red,
         backgroundBottombuttons: '#ccc',
-        backgroundTiles: '#F5F5F5',
+        backgroundTiles: '#E5E5E5',
+        textButton: COLORS.darkGrey,
+        backgroundSelectedButton: '#969595',
+        textSelectedButton: COLORS.white,
+        phone: COLORS.lightBlue
         },
     dark: {
         themeDark: 'dark',
@@ -22,6 +26,10 @@ const themeDark = {
         backgroundHeader: COLORS.red,
         backgroundBottombuttons: '#101010',
         backgroundTiles: '#363435',
+        textButton: COLORS.grey,
+        backgroundSelectedButton: "#6e6e6e",
+        textSelectedButton: COLORS.dark,
+        phone: COLORS.lightBlue
     }
 }
 

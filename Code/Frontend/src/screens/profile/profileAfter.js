@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         flex: 1,
-        backgroundColor: COLORS.black, // Culoarea de fundal a modalității
+        backgroundColor: COLORS.black,
         justifyContent: 'center',
         alignItems: 'center',
     },

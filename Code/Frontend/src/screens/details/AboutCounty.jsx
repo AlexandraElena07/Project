@@ -56,7 +56,7 @@ const AboutCounty = () => {
 
             <HeightSpacer height={SIZES.small}/>
 
-            <DescriptionText text={item.description} color={currentTheme.color} colorButton={currentTheme.color}/>
+            <DescriptionText text={item.description} color={currentTheme.color} colorButton={currentTheme.color} size={TEXT.medium}/>
 
             <HeightSpacer height={SIZES.small}/>
 

@@ -23,7 +23,7 @@ const CountyDetails = ({navigation}) => {
        try {
            
            const response = await axios.get(`http://10.9.31.61:5003/api/places/byCounty/${item._id}`);
-           const filteredPlaces = response.data.places.slice(0, 2); 
+           const filteredPlaces = response.data.places.slice(0, 6); 
            setPlaces(filteredPlaces);
    
        } catch (error) {
@@ -79,7 +79,7 @@ const CountyDetails = ({navigation}) => {
                     renderItem={({item}) => (
                         <TouchableOpacity style={[styles.touristContainer, { backgroundColor: currentTheme.backgroundTiles}]} onPress={() => navigation.navigate('PlaceDetails', item._id)}>
                             <View style={reusable.rowWithSpace('flex-start')}>
-                                <NetworkImage source={item.imageUrl} width={80} height={80} radius={12}/>
+                                <NetworkImage source={item.imageUrls[0]} width={80} height={80} radius={12}/>
                                 
                                 <WidthSpacer width={15}/>
 
@@ -104,11 +104,11 @@ const CountyDetails = ({navigation}) => {
                                     <HeightSpacer height={12}/>
 
                                     <View style={reusable.rowWithSpace('flex-start')}>
-                                        <MaterialIcons name='star' size={15} color={'#ffe20a'}/>
+                                        <MaterialIcons name='star' size={15} color={COLORS.yellow}/>
 
                                         <WidthSpacer width={5}/>
                                         <ReusableText
-                                            text={item.rating}
+                                            text={item.averageRating.toFixed(1)}
                                             family={'medium'}
                                             size={15}
                                             color={currentTheme.color}
@@ -116,7 +116,7 @@ const CountyDetails = ({navigation}) => {
 
                                         <WidthSpacer width={5}/>
                                         <ReusableText
-                                            text={`(${item.review} Reviews)`}
+                                            text={`(${item.reviews.length} Reviews)`}
                                             family={'medium'}
                                             size={14}
                                             color={currentTheme.color}

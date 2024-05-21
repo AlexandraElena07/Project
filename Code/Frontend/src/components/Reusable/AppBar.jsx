@@ -13,7 +13,7 @@ const AppBar = ({color, title, color1, icon, onPress, onPress1, color2, icon2, o
             <View style={reusable.rowWithSpace("space-between")}>
             <View>
                 <TouchableOpacity style={styles.box(color)} onPress={onPress}>
-                    <MaterialIcons name="arrow-back-ios" size={26} color={COLORS.white}/>
+                    <MaterialIcons name="arrow-back-ios" size={26} color={COLORS.darkGrey}/>
                 </TouchableOpacity>
             </View>
 

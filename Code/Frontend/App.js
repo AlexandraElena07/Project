@@ -21,6 +21,7 @@ export default function App() {
   const [fontsLoaded] = useFonts({
     regular: require('./assets/fonts/regular.otf'),
     bold: require('./assets/fonts/bold.otf'),
+    boldIt: require('./assets/fonts/boldIt.otf'),
     semibold: require('./assets/fonts/semibold.otf'),
     semiboldIt: require('./assets/fonts/semiboldIt.otf'),
     extralight: require('./assets/fonts/extralight.otf'),
@@ -85,7 +86,9 @@ const onLayoutRootView = useCallback(async () => {
                   headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader } 
               })} />
 
-              <Stack.Screen name='TouristAttraction' component={TouristAttraction} options={{ headerShown: false }} />
+              <Stack.Screen name='TouristAttraction' component={TouristAttraction} options={{ headerShown: true, headerBackTitle: 'Back', title: 'Tourist Attraction', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader },  
+              headerTitleStyle: {
+              fontWeight: 'bold'} }} />
               <Stack.Screen name='PlaceDetails' component={PlaceDetails} options={{ headerShown: false }} />
             </Stack.Navigator>
           </NavigationContainer>

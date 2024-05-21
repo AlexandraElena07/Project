@@ -35,7 +35,7 @@ module.exports = {
                 return res.status(401).json({status: false, message: "User not found"});
             }
     
-            const decryptedPassword = CryptoJS.AES.decrypt(user.password, process.env.SECRET)
+            const decryptedPassword = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
             const decryptedString = decryptedPassword.toString(CryptoJS.enc.Utf8);
     
             if (decryptedString !== req.body.password) {
@@ -54,15 +54,16 @@ module.exports = {
             const userToken = jwt.sign(
                 {
                     id: user._id,
+                    username: user.username,
                     role: user.role 
                 }, process.env.JWT_SECRET, {expiresIn: "360d"}
             );
     
             const user_id = user._id;
     
-            res.status(200).json({status: true, id: user_id, token: userToken})
+            res.status(200).json({status: true, id: user_id, token: userToken});
         } catch (error) {
-            return next(error)
+            return next(error);
         }
     },
 
@@ -132,5 +133,17 @@ module.exports = {
         } catch (error) {
             return next(error);
         }
+    },
+
+    checkAuth: (req, res) => {
+        const token = req.headers.authorization.split(' ')[1];
+
+        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+            if (err) {
+                return res.status(403).json({ isAuthenticated: false });
+            }
+    
+            res.json({ isAuthenticated: true, username: user.username });
+        });
     }
 }

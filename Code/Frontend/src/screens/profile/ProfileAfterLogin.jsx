@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import styles from './profileAfter';
 import * as Updates from 'expo-updates';
 import { COLORS, SIZES } from '../../constants/theme';
-import { HeightSpacer, ReusableText, WidthSpacer, ReusableBtn } from '../../components/index';
+import { HeightSpacer, ReusableText, WidthSpacer, ReusableBtn, AppBar } from '../../components/index';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ProfileTile } from "../../components"
 import axios from 'axios';
@@ -227,6 +227,7 @@ const ProfileAfterLogin = () => {
                     </View>
 
                     <View>
+                        <ProfileTile title={"Favorites"} icon={'favorite'} onPress={() => navigation.navigate('Favorites')}/>
                         <ProfileTile title={"Change personal information"} icon={'person'} onPress={() => navigation.navigate('UpdateProfile', {data: responseData})}/>
                         <HeightSpacer height={2} />
                         <ProfileTile title={"Delete your account"} icon={'delete'} onPress={() => setModalVisible(true)}/>

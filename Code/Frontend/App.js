@@ -3,16 +3,29 @@ import { useFonts } from 'expo-font';
 import * as Splashscreen from "expo-splash-screen";
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Onboarding, Search, UpdateProfile, Contact, ProfileImage, CountyDetails, AboutCounty, TouristAttraction, PlaceDetails} from './src/screens';
+import { Onboarding, Search, UpdateProfile, Contact, ProfileImage, CountyDetails, AboutCounty, TouristAttraction, PlaceDetails, Favorites } from './src/screens';
 import BottomTabNavigation from './src/navigation/BottomTabNavigation';
 import { DefaultTheme } from 'react-native-paper';
 import ThemeContext, { ThemeProvider } from './src/constants/themeContext';
-import 'react-native-reanimated'
 import axios from 'axios';
-
-import themeDark from './src/constants/themeDark'
+import themeDark from './src/constants/themeDark';
+import * as Linking from "expo-linking";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
+
+const prefix = Linking.createURL("/");
+
+const linking = {
+  prefixes: [prefix, "roexplorer://"],
+  config: {
+    screens: {
+      PlaceDetails: "place/:placeId",
+      AboutCounty: "county/:countyId",
+      Favorites: "favorites"
+    },
+  },
+};
 
 export default function App() {
 
@@ -59,8 +72,9 @@ const onLayoutRootView = useCallback(async () => {
     <ThemeProvider>
       <ThemeContext.Consumer>
         {userTheme => (
-          <NavigationContainer theme={userTheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Stack.Navigator>
+          <GestureHandlerRootView style={{ flex: 1 }}> 
+          <NavigationContainer linking={linking} theme={userTheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
               <Stack.Screen name='Onboard' component={Onboarding} options={{ headerShown: false }} />
               <Stack.Screen name='Bottom' component={BottomTabNavigation} options={{ headerShown: false }} />
               <Stack.Screen name='Search' component={Search} options={{ headerShown: false }} />
@@ -90,8 +104,10 @@ const onLayoutRootView = useCallback(async () => {
               headerTitleStyle: {
               fontWeight: 'bold'} }} />
               <Stack.Screen name='PlaceDetails' component={PlaceDetails} options={{ headerShown: false }} />
+              <Stack.Screen name='Favorites' component={Favorites} options={{ headerShown: true, headerBackTitle: 'Back', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader }, headerTitleStyle: {fontWeight: 'bold'} }} />
             </Stack.Navigator>
           </NavigationContainer>
+          </GestureHandlerRootView>
         )}
       </ThemeContext.Consumer>
     </ThemeProvider>

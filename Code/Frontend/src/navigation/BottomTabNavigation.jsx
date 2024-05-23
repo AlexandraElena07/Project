@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, Profile, Favorite, Location, ProfileAfterLogin } from '../screens';
+import { Home, Profile, Events, Location, ProfileAfterLogin } from '../screens';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuthTab from './AuthTab';
@@ -69,7 +69,7 @@ const BottomTabNavigation = () => {
         }}
       />
 
-      <Tab.Screen name='Favorite' component={Favorite} options={{
+      <Tab.Screen name='Events' component={Events} options={{
           tabBarStyle: tabBarStyle,
           tabBarShowLabel: true,
           tabBarActiveTintColor: COLORS.red,
@@ -77,7 +77,7 @@ const BottomTabNavigation = () => {
           headerShown: false,
           tabBarIcon: ({focused}) => (
             <Ionicons 
-              name={focused ? "heart" : "heart-outline"}
+              name={focused ? "calendar" : "calendar-outline"}
               color={focused ? COLORS.red : COLORS.inactiveIcon}
               size={26}
             />

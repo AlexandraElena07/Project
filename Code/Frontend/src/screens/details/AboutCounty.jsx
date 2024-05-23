@@ -1,5 +1,5 @@
-import React, { useContext, useCallback, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, Button } from 'react-native';
+import React, { useContext, useCallback, useState, useEffect } from 'react';
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, Share } from 'react-native';
 import themeContext from '../../constants/themeContext';
 import themeDark from '../../constants/themeDark';
 import { useRoute } from '@react-navigation/native';
@@ -7,6 +7,8 @@ import { DescriptionText, NetworkImage, HeightSpacer, BottomButtons, ReusableTex
 import { SIZES, TEXT, COLORS } from '../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import YoutubePlayer from 'react-native-youtube-iframe'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const AboutCounty = () => {
    const navigation = useNavigation();
@@ -15,20 +17,93 @@ const AboutCounty = () => {
    const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
 
    const [playing, setPlaying] = useState(false);
-
+   const [isFavorite, setIsFavorite] = useState(false);
+   const [userId, setUserId] = useState(null);
    
-
    const route = useRoute();
-    const {item} = route.params;
+   const { item } = route.params;
+ 
+   useEffect(() => {
+     getUser();
+   }, []);
+ 
+   useEffect(() => {
+    if (userId ) {
+      checkIfFavorite();
+    }
+  }, [userId]); 
 
-    const handlePressFavorite = () => {
-        // logica pentru adăugarea la favorite
-        console.log('Adăugat la favorite');
-      };
+useEffect(() => {
+  if (item._id) { // Verifică dacă există item._id ca să eviți apeluri inutile
+    checkIfFavorite();
+  }
+}, [item._id]); // Dependența pe item._id asigură re-verificarea doar când item-ul se schimbă
+
+ 
+   const getUser = async () => {
+     try {
+       const token = await AsyncStorage.getItem('token');
+       const response = await axios.get('http://10.9.31.61:5003/api/users', {
+         headers: {
+           Authorization: `Bearer ${token}`
+         }
+       });
+       setUserId(response.data.id);
+     } catch (error) {
+       console.error('Error fetching id:', error);
+     }
+   };
+ 
+   const checkIfFavorite = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get('http://10.9.31.61:5003/api/users/favorites', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const isFav = response.data.favorites.some(fav => fav._id === item._id && fav.type === 'County'); 
+      setIsFavorite(isFav);
+    } catch (error) {
+      console.error('Error checking favorite status:', error);
+    }
+  };
+ 
+  const handleAddToFavorites = async (itemId, itemType) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
+  
+      const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
+        userId: userId,
+        itemId: item._id,
+        itemType
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      if (response.status === 200) {
+        setIsFavorite(!isFavorite); 
+        console.log(!isFavorite)
+      } else {
+        Alert.alert('Error', 'Failed to update favorite status.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    }
+  };
     
-      const handlePressShare = () => {
-        // logica pentru partajare
-        console.log('Partajat');
+      const handlePressShare = async () => {
+        try {
+          const result = await Share.share({
+            message: `Check out this place: ${item.county} - ${item.description}\n\nView more at: exp://10.9.31.61:8081/--/roexplorer://${item.county}/${item._id}`,
+          });
+     
+        } catch (error) {
+          alert(error.message);
+        }
       };
 
       const onStateChange = useCallback((state) => {
@@ -74,8 +149,10 @@ const AboutCounty = () => {
 
         <View>
             <BottomButtons
-                onPressFavorite={handlePressFavorite}
+                onPressFavorite={()=> handleAddToFavorites(item._id, 'County')}
                 onPressShare={handlePressShare}
+                name1={isFavorite ? "favorite" : "favorite-outline"}
+                color1={COLORS.red}
             />
         </View>
     </View>

@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, FlatList, Image, Linking, TouchableOpacity, Modal, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, FlatList, Image, Linking, TouchableOpacity, Modal, Alert, Share } from 'react-native';
 import themeContext from '../../constants/themeContext';
 import reusable from '../../components/Reusable/reusable.style';
 import themeDark from '../../constants/themeDark';
 import { useRoute } from '@react-navigation/native'
 import axios from 'axios';
-import { AppBar, NetworkImage, ReusableText, RadioButton, TopBar, HeightSpacer, WidthSpacer, Tiles, DescriptionText, } from '../../components';
+import { AppBar, FavoriteBottomSheet, ReusableText, RadioButton, TopBar, HeightSpacer, WidthSpacer, Tiles, DescriptionText, } from '../../components';
 import { COLORS, SIZES, TEXT } from '../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -33,7 +33,7 @@ const PlaceDetails = () => {
    const [rating, setRating] = useState(0);
    const [review, setReview] = useState('');
    const [averageRating, setAverageRating] = useState(0);
-
+   const [isFavorite, setIsFavorite] = useState(false);
 
    const [mapRegion, setMapRegion] = useState({
       latitude: 0,
@@ -94,10 +94,29 @@ const PlaceDetails = () => {
       });
    }
 
+   const [ userId, setUserId ] = useState();
+   const getUser = async () => {
+      try {
+          const token = await AsyncStorage.getItem('token');
+          const response = await axios.get('http://10.9.31.61:5003/api/users', {
+              headers: {
+              Authorization: `Bearer ${token}`
+              }
+          });
+          setUserId(response.data.id);
+          
+
+      } catch (error) {
+          console.error('Error fetching id:', error);
+      }
+  };
+
    useEffect(() => {
       getDataFromDatabase();
       userLocation();
-  }, []);
+      getUser();
+      checkIfFavorite();
+  }, [id]);
 
   const handleCallPress = () => {
    const phoneUrl = `tel:${place.phone}`;
@@ -176,37 +195,103 @@ const renderStars = (rating) => {
    return stars;
 };
 
+const handleShare = async () => {
+   try {
+     const result = await Share.share({
+       message: `Check out this place: ${place.title} - ${place.description}\n\nView more at: exp://10.9.31.61:8081/--/roexplorer://${place.title}/${id}`,
+     });
+
+   } catch (error) {
+     alert(error.message);
+   }
+ };
+
+ const checkIfFavorite = async () => {
+   try {
+     const token = await AsyncStorage.getItem('token');
+     const response = await axios.get('http://10.9.31.61:5003/api/users/favorites', {
+       headers: {
+         Authorization: `Bearer ${token}`
+       }
+     });
+
+   const isFav = response.data.favorites.some(fav => fav._id === id && fav.type === 'Place');
+     setIsFavorite(isFav);
+   } catch (error) {
+     console.error('Error checking favorite status:', error);
+   }
+ };
+
+ const handleAddToFavorites = async (itemId, itemType) => {
+   try {
+     const token = await AsyncStorage.getItem('token');
+     const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
+
+     const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
+       userId: userId, // Înlocuiește cu ID-ul utilizatorului autentificat
+       itemId,
+       itemType
+     }, {
+       headers: {
+         Authorization: `Bearer ${token}`
+       }
+     });
+
+    if (response.status === 200) {
+      setIsFavorite(!isFavorite);
+    } else {
+      Alert.alert('Error', 'Failed to update favorite status.');
+    }
+   } catch (error) {
+     Alert.alert('Error', 'Something went wrong. Please try again.');
+   }
+ };
 
   const renderContent = () => {
    switch(activeTab) {
       case 'Contact':
          return (
             <View style={[ {backgroundColor: currentTheme.background}]}>
-               <Tiles title={"Program: " + place.program} icon={'schedule'}/>
+               {place.program && (
+                  <>
+                     <Tiles title={"Program: " + place.program} icon={'schedule'} />
+                     <HeightSpacer height={10} />
+                  </>
+               )}
 
-               <HeightSpacer height={10}/>
-
-               <View style={reusable.rowWithSpace('space-between')}>
-                  <View style={reusable.rowWithSpace('flex-start')}>
-                     <Tiles title={"Phone number: "} icon={'phone'}/>
-                     <TouchableOpacity onPress={handleCallPress}>
-                        <ReusableText
-                              text={place.phone}
-                              family={''}
-                              size={TEXT.medium}
-                              color={currentTheme.phone}
-                        />
-                     </TouchableOpacity>
+            {place.phone && (
+               <>
+                  <View style={reusable.rowWithSpace('space-between')}>
+                     <View style={reusable.rowWithSpace('flex-start')}>
+                              <Tiles title={"Phone number: "} icon={'phone'}/>
+                              <TouchableOpacity onPress={handleCallPress}>
+                                 <ReusableText
+                                    text={place.phone}
+                                    family={''}
+                                    size={TEXT.medium}
+                                    color={currentTheme.phone}
+                                 />
+                              </TouchableOpacity>
+                     </View>
                   </View>
-               </View>
+                  <HeightSpacer height={10} />
+               </>
+            )}
 
-               <HeightSpacer height={10}/>
+               {place.price && (
+                  <>
+                     <Tiles title={"Ticket price: " + place.price} icon={'info-outline'}/>
+                     <HeightSpacer height={10} />
+                  </>
+               )}
 
-               <Tiles title={"Ticket price: " + place.price} icon={'info-outline'}/>
-               
-               <HeightSpacer height={10}/>
+               {place.adress && (
+                  <>
+                  <Tiles title={"Address: " + place.adress} icon={'near-me'}/>
+                     <HeightSpacer height={10} />
+                  </>
+               )}
 
-               <Tiles title={"Address: " + place.adress} icon={'near-me'}/>
 
                <HeightSpacer height={25}/>
 
@@ -230,7 +315,7 @@ const renderStars = (rating) => {
          return <DescriptionText text={place.description} color={currentTheme.color} size={TEXT.medium}/>
       case 'Rating':
          return (
-         <View>
+         <View style={[ {backgroundColor: currentTheme.background}]}>
             <View style={reusable.rowWithSpace('space-between')}>
                <View style={reusable.rowWithSpace('flex-start')}>
                     <ReusableText
@@ -319,21 +404,21 @@ const renderStars = (rating) => {
                </View>
             </View>
             <HeightSpacer height={10}/>
-            <View style={styles.reviewContainer}>
+            <View style={[styles.reviewContainer, {backgroundColor: currentTheme.background}]}> 
                {place.reviews.length > 0 ? (
                   place.reviews.map((review, index) => (
                      <View key={index} style={styles.reviewItem}>
                         <View style={styles.reviewHeader}>
-                           <Text style={styles.reviewUsername}>{review.username}</Text>
+                           <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
                            <View style={styles.starsContainer}>
                               {renderStars(review.rating)}
                            </View>
                         </View>
-                        <Text style={styles.reviewText}>{review.reviewText}</Text>
+                        <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
                      </View>
                   ))
                ) : (
-                  <Text style={styles.noReviews}>No reviews yet.</Text>
+                  <Text style={[styles.noReviews, {color: currentTheme.color}]}>No reviews yet.</Text>
                )}
             </View>
             
@@ -346,6 +431,7 @@ const renderStars = (rating) => {
 };
 
   return (
+   <View>
    <ScrollView showsVerticalScrollIndicator={false} style={[ {backgroundColor: currentTheme.background}]}>
       {place && (
            <View>
@@ -387,13 +473,15 @@ const renderStars = (rating) => {
                  top={45}
                  left={5}
                  right={5}
-                 icon={"favorite-outline"}
+                 icon={"arrow-back-ios"}
+                 icon1={isFavorite ? "favorite" : "favorite-outline"}
                  color1={COLORS.grey}
+                 color4={COLORS.red}
                  icon2={"ios-share"}
                  color2={COLORS.grey}
                  onPress={() => navigation.goBack()}
-                 onPress1={() => {}}
-                 onPress2={() => {}}
+                 onPress1={()=> handleAddToFavorites(place._id, 'Place')}
+                 onPress2={() => handleShare()}
               />
 
             </View>
@@ -437,8 +525,10 @@ const renderStars = (rating) => {
            
            
       )}
-   </ScrollView>
 
+
+   </ScrollView>
+</View>
  );
 }
 

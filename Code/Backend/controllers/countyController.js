@@ -68,7 +68,7 @@ module.exports = {
             const county = await County.findById(countyId, {createdAt: 0, updatedAt: 0, _v: 0})
             .populate({
                 path:'popular',
-                select: 'title rating review imageUrl location'
+                select: 'county description imageUrl videoId'
             });
 
             res.status(200).json(county)

@@ -106,7 +106,7 @@ const TouristAttraction = () => {
                           <View style={styles.imageContainer}>
                             <Image source={{ uri: item.imageUrls[0] }} style={styles.image} />
                             <TouchableOpacity style={styles.box} onPress={() => addToFavorites(item._id)}>
-                              <MaterialIcons name="favorite-outline" size={26} color="black" />
+                              <MaterialIcons name="favorite-outline" size={26} color={COLORS.red} />
                             </TouchableOpacity>
                           </View>
                           <View style={{ backgroundColor: currentTheme.backgroundTiles, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
@@ -116,6 +116,7 @@ const TouristAttraction = () => {
                       </TouchableOpacity>
                     )
                   )}
+                  ListFooterComponent={<View style={styles.footerSpace} />}
               />
             )}
         </View>
@@ -200,6 +201,9 @@ const styles = StyleSheet.create({
     },
     text: {
       fontSize: 16, 
+    },
+    footerSpace: {
+      height: 150, 
     },
 })
 

@@ -13,7 +13,8 @@ const COLORS = {
     lightBlue: "#1877F2",
     dark: "#1e1e1e",
     inactiveIcon: "#666262",
-    yellow: "#f0c51d"
+    yellow: "#f0c51d",
+    black: "#080808"
 };
 
 const SIZES = {

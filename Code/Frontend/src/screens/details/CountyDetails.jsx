@@ -18,8 +18,9 @@ const CountyDetails = ({navigation}) => {
     const {item} = route.params;
 
     const [places, setPlaces] = useState([]);
+    const [hotels, setHotels] = useState([]);
 
-    const getDataFromDatabase = async () => {
+    const getPlacesFromDatabase = async () => {
        try {
            
            const response = await axios.get(`http://10.9.31.61:5003/api/places/byCounty/${item._id}`);
@@ -31,13 +32,27 @@ const CountyDetails = ({navigation}) => {
        }
    
       };
+
+      const getHotelsFromDatabase = async () => {
+        try {
+            
+            const response = await axios.get(`http://10.9.31.61:5003/api/hotels/byCounty/${item._id}`);
+            const filteredHotels = response.data.hotels.slice(0, 6); 
+            setHotels(filteredHotels);
+    
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    
+       };
    
       useEffect(() => {
-         getDataFromDatabase();
+         getPlacesFromDatabase();
+         getHotelsFromDatabase();
      }, []);
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: currentTheme.background}]}>
+        <ScrollView showsVerticalScrollIndicator={false} style={[styles.container, { backgroundColor: currentTheme.background}]}>
             <View>
                 <NetworkImage source={item.imageUrl} width={"100%"} height={200} radius={0} resizeMode={'cover'}/>
                 <View style={styles.overlay}>
@@ -49,9 +64,6 @@ const CountyDetails = ({navigation}) => {
 
             <View style={reusable.container}>
                 <HeightSpacer height={35}/>
-
-
-                <HeightSpacer height={10}/>
 
                 <View style={[reusable.rowWithSpace('space-between'), {paddingBottom: 20}]}>
                     <ReusableText
@@ -129,6 +141,90 @@ const CountyDetails = ({navigation}) => {
                     )}
                 />
             </View>
+
+            <View style={reusable.container}>
+                <HeightSpacer height={35}/>
+
+                <View style={[reusable.rowWithSpace('space-between'), {paddingBottom: 20}]}>
+                    <ReusableText
+                        text={'Accommodation'}
+                        family={'medium'}
+                        size={TEXT.large}
+                        color={currentTheme.color}
+                    />
+
+                    <TouchableOpacity onPress={() => navigation.navigate('Hotels', {item})}>
+                        <MaterialIcons
+                            name="list"
+                            size={TEXT.xLarge}
+                            color={currentTheme.color}
+                        />
+                    </TouchableOpacity>
+                </View>
+
+                <FlatList
+                    data={hotels}
+                    horizontal
+                    keyExtractor={(item) => item._id}
+                    contentContainerStyle={{columnGap:SIZES.medium}}
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={({item}) => (
+                        <TouchableOpacity style={[styles.hotelContainer, { backgroundColor: currentTheme.backgroundTiles}]} onPress={() => navigation.navigate('HotelDetails', {itemId: item._id})}>
+                            <View style={{alignItems: 'center'}}>
+                                <NetworkImage source={item.imageUrls[0]} width={170} height={170} radius={12}/>
+                                <HeightSpacer height={10}/>
+                            </View>  
+
+                            <View>
+
+                                <ReusableText
+                                    text={item.title}
+                                    family={'medium'}
+                                    size={SIZES.medium}
+                                    color={currentTheme.color}
+                                />
+
+                                <HeightSpacer height={6}/>
+
+                                <ReusableText
+                                    text={item.location}
+                                    family={'medium'}
+                                    size={14}
+                                    color={currentTheme.color}
+                                />
+
+                                <HeightSpacer height={12}/>
+
+                                <View style={reusable.rowWithSpace('flex-start')}>
+                                    <MaterialIcons name='star' size={15} color={COLORS.yellow}/>
+
+                                    <WidthSpacer width={5}/>
+                                    <ReusableText
+                                        text={item.averageRating.toFixed(1)}
+                                        family={'medium'}
+                                        size={15}
+                                        color={currentTheme.color}
+                                    />
+                                    <WidthSpacer width={5}/>
+                                    <ReusableText
+                                        text={`(${item.reviews.length} Reviews)`}
+                                        family={'medium'}
+                                        size={14}
+                                        color={currentTheme.color}
+                                    />
+
+                                </View>
+
+                            </View>
+                            
+                        </TouchableOpacity>
+                        
+                    )}
+                />
+                <HeightSpacer height={52}/>
+            </View>
+
+            
         </ScrollView>
     );
 }
@@ -170,6 +266,12 @@ const styles = StyleSheet.create ({
         padding: 10,
         borderRadius: 12
     },
+    hotelContainer: {
+        padding: 10,
+        borderRadius: 12,
+        width: 190
+    },
+
 
 })
  

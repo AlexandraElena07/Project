@@ -5,7 +5,7 @@ import reusable from '../../components/Reusable/reusable.style';
 import themeDark from '../../constants/themeDark';
 import { useRoute } from '@react-navigation/native'
 import axios from 'axios';
-import { AppBar, FavoriteBottomSheet, ReusableText, RadioButton, TopBar, HeightSpacer, WidthSpacer, Tiles, DescriptionText, } from '../../components';
+import { AppBar,  ReusableText, RadioButton, TopBar, HeightSpacer, WidthSpacer, Tiles, DescriptionText, } from '../../components';
 import { COLORS, SIZES, TEXT } from '../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -98,18 +98,25 @@ const PlaceDetails = () => {
    const getUser = async () => {
       try {
           const token = await AsyncStorage.getItem('token');
+          
+          if (!token) {
+              console.log('User not authenticated.');
+              return;
+          }
+  
           const response = await axios.get('http://10.9.31.61:5003/api/users', {
               headers: {
-              Authorization: `Bearer ${token}`
+                  Authorization: `Bearer ${token}`
               }
           });
           setUserId(response.data.id);
-          
-
+  
       } catch (error) {
-          console.error('Error fetching id:', error);
+          console.error('Error fetching user ID:', error);
+          Alert.alert('Error', 'Failed to fetch user data. Please try again later.');
       }
   };
+  
 
    useEffect(() => {
       getDataFromDatabase();
@@ -209,26 +216,44 @@ const handleShare = async () => {
  const checkIfFavorite = async () => {
    try {
      const token = await AsyncStorage.getItem('token');
+     
+     if (!token) {
+       return; 
+     }
+
      const response = await axios.get('http://10.9.31.61:5003/api/users/favorites', {
        headers: {
          Authorization: `Bearer ${token}`
        }
      });
 
-   const isFav = response.data.favorites.some(fav => fav._id === id && fav.type === 'Place');
+     const isFav = response.data.favorites.some(fav => fav._id === id && fav.type === 'Place');
      setIsFavorite(isFav);
    } catch (error) {
      console.error('Error checking favorite status:', error);
+     Alert.alert('Error', 'Failed to check favorite status. Please try again later.');
    }
- };
+};
+
 
  const handleAddToFavorites = async (itemId, itemType) => {
    try {
      const token = await AsyncStorage.getItem('token');
      const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
 
+     if (!token) {
+      Alert.alert('Error', 'You need to be logged in to add to favorite list.');
+      return;
+  }
+
+   const authResponse = await axios.get('http://10.9.31.61:5003/api/check', {
+         headers: {
+            Authorization: `Bearer ${token}`
+         }
+   });
+
      const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
-       userId: userId, // Înlocuiește cu ID-ul utilizatorului autentificat
+       userId: authResponse.data.userId, 
        itemId,
        itemType
      }, {
@@ -286,10 +311,22 @@ const handleShare = async () => {
                )}
 
                {place.adress && (
-                  <>
-                  <Tiles title={"Address: " + place.adress} icon={'near-me'}/>
-                     <HeightSpacer height={10} />
-                  </>
+                    <>
+                        <View style={reusable.rowWithSpace('space-between')}>
+                            <View style={reusable.rowWithSpace('flex-start')}>
+                                    <Tiles title={"Address: "} icon={'near-me'}/>
+                                    <TouchableOpacity onPress={openGoogleMaps}>
+                                        <ReusableText
+                                            text={place.adress}
+                                            family={''}
+                                            size={TEXT.medium}
+                                            color={currentTheme.phone}
+                                        />
+                                    </TouchableOpacity>
+                            </View>
+                        </View>
+                        <HeightSpacer height={10} />
+                    </>
                )}
 
 
@@ -315,123 +352,123 @@ const handleShare = async () => {
          return <DescriptionText text={place.description} color={currentTheme.color} size={TEXT.medium}/>
       case 'Rating':
          return (
-         <View style={[ {backgroundColor: currentTheme.background}]}>
-            <View style={reusable.rowWithSpace('space-between')}>
-               <View style={reusable.rowWithSpace('flex-start')}>
-                    <ReusableText
-                        text={'Reviews'}
-                        family={'semibold'}
-                        size={TEXT.medium}
-                        color={currentTheme.color}
-                    />
+            <View style={[ {backgroundColor: currentTheme.background}]}>
+               <View style={reusable.rowWithSpace('space-between')}>
+                  <View style={reusable.rowWithSpace('flex-start')}>
+                     <ReusableText
+                           text={'Reviews'}
+                           family={'semibold'}
+                           size={TEXT.medium}
+                           color={currentTheme.color}
+                     />
 
-                    <WidthSpacer width={130} />
-                    <View style={styles.modalContainer}>
-                        <TouchableOpacity onPress={() => setModalVisible(true)}>
-                            <Tiles title={"Write a review"} icon={'note-alt'} />
-                        
-                            <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={modalVisible}
-                                onRequestClose={() => {
-                                    setModalVisible(!modalVisible);
-                                }}>
-                                <View style={styles.modalBackground}>
-                                    <View style={[styles.modalView, {backgroundColor: currentTheme.background}]}>
-                                       <View style={styles.modalCenter}>
+                     <WidthSpacer width={130} />
+                     <View style={styles.modalContainer}>
+                           <TouchableOpacity onPress={() => setModalVisible(true)}>
+                              <Tiles title={"Write a review"} icon={'note-alt'} />
+                           </TouchableOpacity>
+                              <Modal
+                                 animationType="slide"
+                                 transparent={true}
+                                 visible={modalVisible}
+                                 onRequestClose={() => {
+                                       setModalVisible(!modalVisible);
+                                 }}>
+                                 <View style={styles.modalBackground}>
+                                       <View style={[styles.modalView, {backgroundColor: currentTheme.background}]}>
+                                          <View style={styles.modalCenter}>
+                                             <ReusableText
+                                                   text={'Reviews'}
+                                                   family={'semibold'}
+                                                   size={TEXT.medium}
+                                                   color={currentTheme.color}
+                                             />
+
+                                             <View style={styles.starsContainer}>
+                                                {[1, 2, 3, 4, 5].map(star => (
+                                                   <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
+                                                      <MaterialIcons
+                                                         name={star <= rating ? 'star' : 'star-outline'}
+                                                         size={40}
+                                                         color={COLORS.yellow}
+                                                      />
+                                                   </TouchableOpacity>
+                                                ))}
+                                             </View>
+                                          </View>
+
                                           <ReusableText
-                                                text={'Reviews'}
+                                                text={'Add your comment:'}
                                                 family={'semibold'}
-                                                size={TEXT.medium}
+                                                size={TEXT.small}
                                                 color={currentTheme.color}
                                           />
 
-                                          <View style={styles.starsContainer}>
-                                             {[1, 2, 3, 4, 5].map(star => (
-                                                <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
-                                                   <MaterialIcons
-                                                      name={star <= rating ? 'star' : 'star-outline'}
-                                                      size={40}
-                                                      color={COLORS.yellow}
-                                                   />
+                                          <HeightSpacer height={10}/>
+      
+                                          <TextInput
+                                             label="Enter your review comment"
+                                             value={review}
+                                             onChangeText={text => setReview(text)}
+                                             mode="outlined"
+                                             multiline={true}
+                                             style={[styles.input, { backgroundColor: currentTheme.background }]}
+                                             theme={{ colors: { placeholder: currentTheme.color, text: currentTheme.color, primary: currentTheme.color, underlineColor: 'transparent', background: currentTheme.background } }}
+                                          />
+
+                                          <HeightSpacer height={25}/>
+
+                                          <View style={reusable.rowWithSpace('space-between')}>
+                                             <View style={reusable.rowWithSpace('flex-start')}>
+
+                                                <TouchableOpacity style={styles.deleteButton} onPress={() => handleSubmit()}>
+                                                      <Text style={styles.buttonTextDelete}>Submit</Text>
                                                 </TouchableOpacity>
-                                             ))}
+
+                                                <WidthSpacer width={35}/>
+
+                                                <TouchableOpacity style={styles.buttonCancel} onPress={()=> handleModalClose()}>
+                                                      <Text style={styles.buttonTextCancel}>Cancel</Text>
+                                                </TouchableOpacity>
+                                             </View>
                                           </View>
                                        </View>
+                                 </View>
+                              </Modal>
 
-                                       <ReusableText
-                                             text={'Add your comment:'}
-                                             family={'semibold'}
-                                             size={TEXT.small}
-                                             color={currentTheme.color}
-                                       />
-
-                                       <HeightSpacer height={10}/>
-   
-                                       <TextInput
-                                          label="Enter your review comment"
-                                          value={review}
-                                          onChangeText={text => setReview(text)}
-                                          mode="outlined"
-                                          multiline={true}
-                                          style={[styles.input, { backgroundColor: currentTheme.background }]}
-                                          theme={{ colors: { placeholder: currentTheme.color, text: currentTheme.color, primary: currentTheme.color, underlineColor: 'transparent', background: currentTheme.background } }}
-                                       />
-
-                                       <HeightSpacer height={25}/>
-
-                                       <View style={reusable.rowWithSpace('space-between')}>
-                                          <View style={reusable.rowWithSpace('flex-start')}>
-
-                                             <TouchableOpacity style={styles.deleteButton} onPress={() => handleSubmit()}>
-                                                   <Text style={styles.buttonTextDelete}>Submit</Text>
-                                             </TouchableOpacity>
-
-                                             <WidthSpacer width={35}/>
-
-                                             <TouchableOpacity style={styles.buttonCancel} onPress={()=> handleModalClose()}>
-                                                   <Text style={styles.buttonTextCancel}>Cancel</Text>
-                                             </TouchableOpacity>
-                                          </View>
-                                       </View>
-                                    </View>
-                                </View>
-                            </Modal>
-
-                        </TouchableOpacity>
-                    </View>
-               </View>
-            </View>
-            <HeightSpacer height={10}/>
-            <View style={[styles.reviewContainer, {backgroundColor: currentTheme.background}]}> 
-               {place.reviews.length > 0 ? (
-                  place.reviews.map((review, index) => (
-                     <View key={index} style={styles.reviewItem}>
-                        <View style={styles.reviewHeader}>
-                           <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
-                           <View style={styles.starsContainer}>
-                              {renderStars(review.rating)}
-                           </View>
-                        </View>
-                        <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
+                           
                      </View>
-                  ))
-               ) : (
-                  <Text style={[styles.noReviews, {color: currentTheme.color}]}>No reviews yet.</Text>
-               )}
+                  </View>
+               </View>
+               <HeightSpacer height={10}/>
+               <View style={[styles.reviewContainer, {backgroundColor: currentTheme.background}]}> 
+                  {place.reviews.length > 0 ? (
+                     place.reviews.map((review, index) => (
+                        <View key={index} style={styles.reviewItem}>
+                           <View style={styles.reviewHeader}>
+                              <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
+                              <View style={styles.starsContainer}>
+                                 {renderStars(review.rating)}
+                              </View>
+                           </View>
+                           <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
+                        </View>
+                     ))
+                  ) : (
+                     <Text style={[styles.noReviews, {color: currentTheme.color}]}>No reviews yet.</Text>
+                  )}
+               </View>
+               
             </View>
-            
-        </View>
            
-                        )
+         )
       default:
          return null;
    }
 };
 
   return (
-   <View>
+   <View style={[ {backgroundColor: currentTheme.background}]}>
    <ScrollView showsVerticalScrollIndicator={false} style={[ {backgroundColor: currentTheme.background}]}>
       {place && (
            <View>
@@ -519,14 +556,13 @@ const handleShare = async () => {
 
                <View style={[ styles.contentContainer, {backgroundColor: currentTheme.background}]}>
                   {renderContent()}
+                  <HeightSpacer height={200}/>
                </View>
             </View>
            </View>
            
            
       )}
-
-
    </ScrollView>
 </View>
  );
@@ -548,10 +584,10 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
       flex: 1,
-      padding: 10
+      padding: 10,
   },
   map: {
-      width: 330,
+      width: SIZES.width-50,
       height: 200
   },
   directionsButton: {

@@ -2,7 +2,7 @@ const County = require("../models/County");
 
 module.exports = {
     addCounty: async (req, res, next) => {
-        const {county, description, imageUrl, videoId, popular} = req.body;
+        const {county, description, imageUrl, videoId, attraction} = req.body;
 
         try {
 
@@ -11,7 +11,7 @@ module.exports = {
                 description,
                 imageUrl,
                 videoId,
-                popular
+                attraction
             });
 
             await newCounty.save();
@@ -33,12 +33,12 @@ module.exports = {
                 return res.status(404).json({message: "County not found"})
             }
 
-            const index = county.popular.indexOf(placeId);
+            const index = county.attraction.indexOf(placeId);
 
             if(index !== -1) {
-                county.popular.splice(index, 1)
+                county.attraction.splice(index, 1)
             } else {
-                county.popular.push(placeId);
+                county.attraction.push(placeId);
             }
 
             await county.save();
@@ -47,7 +47,34 @@ module.exports = {
         } catch (error) {
             return next(error)
         }
+ 
+    },
 
+    addHotelsToCounty: async (req, res, next) => {
+        const {countyId, hotelId} = req.body;
+
+        try {
+            const county = await County.findById(countyId);
+
+            if(!county) {
+                return res.status(404).json({message: "County not found"})
+            }
+
+            const index = county.hotel.indexOf(placeId);
+
+            if(index !== -1) {
+                county.hotel.splice(index, 1)
+            } else {
+                county.hotel.push(hotelId);
+            }
+
+            await county.save();
+
+            res.status(200).json({status: true})
+        } catch (error) {
+            return next(error)
+        }
+ 
     },
     
     getCounties: async (req, res, next) => {
@@ -67,8 +94,12 @@ module.exports = {
         try {
             const county = await County.findById(countyId, {createdAt: 0, updatedAt: 0, _v: 0})
             .populate({
-                path:'popular',
-                select: 'county description imageUrl videoId'
+                path:'attraction',
+                select: 'description imageUrls location title category latitude longitude program phone adress price reviews'
+            })
+            .populate({
+                path:'hotel',
+                select: 'imageUrls location title category latitude mail program phone adress website bookingsite reviews'
             });
 
             res.status(200).json(county)

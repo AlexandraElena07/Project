@@ -41,22 +41,35 @@ useEffect(() => {
 
  
    const getUser = async () => {
-     try {
-       const token = await AsyncStorage.getItem('token');
-       const response = await axios.get('http://10.9.31.61:5003/api/users', {
-         headers: {
-           Authorization: `Bearer ${token}`
-         }
-       });
-       setUserId(response.data.id);
-     } catch (error) {
-       console.error('Error fetching id:', error);
-     }
-   };
+      try {
+          const token = await AsyncStorage.getItem('token');
+          
+          if (!token) {
+              console.log('User not authenticated.');
+              return;
+          }
+  
+          const response = await axios.get('http://10.9.31.61:5003/api/users', {
+              headers: {
+                  Authorization: `Bearer ${token}`
+              }
+          });
+          setUserId(response.data.id);
+  
+      } catch (error) {
+          console.error('Error fetching user ID:', error);
+          Alert.alert('Error', 'Failed to fetch user data. Please try again later.');
+      }
+  };
  
    const checkIfFavorite = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
+
+      if (!token) {
+        return; 
+      }
+
       const response = await axios.get('http://10.9.31.61:5003/api/users/favorites', {
         headers: {
           Authorization: `Bearer ${token}`
@@ -74,8 +87,19 @@ useEffect(() => {
       const token = await AsyncStorage.getItem('token');
       const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
   
+      if (!token) {
+        Alert.alert('Error', 'You need to be logged in to add to favorite list.');
+        return;
+      }
+    
+      const authResponse = await axios.get('http://10.9.31.61:5003/api/check', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+      });
+
       const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
-        userId: userId,
+        userId: authResponse.data.userId,
         itemId: item._id,
         itemType
       }, {
@@ -86,7 +110,6 @@ useEffect(() => {
   
       if (response.status === 200) {
         setIsFavorite(!isFavorite); 
-        console.log(!isFavorite)
       } else {
         Alert.alert('Error', 'Failed to update favorite status.');
       }

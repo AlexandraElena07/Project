@@ -8,8 +8,10 @@ import AppBar from "./Reusable/AppBar";
 import DescriptionText from "./Reusable/DescriptionText";
 import BottomButtons from "./Buttons/BottomButtons";
 import RadioButton from "./Buttons/RadioButton";
-import TopBar from "./Details/TopBar";
+import TopBar from "./PlaceDetails/TopBar";
 import Tiles from "./Reusable/Tiles";
+import TopButtons from "./Buttons/TopButtons"
+import ImageCarousel from "./Reusable/ImageCarousel";
 
 export {
     ReusableText,
@@ -24,4 +26,7 @@ export {
     RadioButton,
     TopBar,
     Tiles,
+    TopButtons,
+    ImageCarousel
+    
 }

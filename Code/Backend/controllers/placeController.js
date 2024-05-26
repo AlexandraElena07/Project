@@ -2,7 +2,7 @@ const Place = require("../models/Places")
 
 module.exports = {
     addPlaces: async(req, res, next) => {
-        const { county_id, description, imageUrls, location, title, latitude, longitude, category, program, phone, adress, price, navigation } = req.body;
+        const { county_id, description, imageUrls, location, title, latitude, longitude, category, program, phone, adress, price } = req.body;
 
         try {
             const newPlace = new Place({
@@ -12,13 +12,12 @@ module.exports = {
                 location, 
                 title, 
                 category, 
-                latitude, 
+                latitude,  
                 longitude,
                 program,
                 phone,
                 adress,
-                price,
-                navigation
+                price
             })
 
             await newPlace.save();
@@ -57,7 +56,7 @@ module.exports = {
 
     getPlaces: async(req, res, next) => {
         try {
-            const places = await Place.find({}, '_id category review rating location imageUrl title description county_id')
+            const places = await Place.find({}, '_id price adress phone program longitude latitude category location imageUrls title description county_id')
 
             res.status(200).json({places})
         } catch (error) {

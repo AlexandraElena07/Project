@@ -3,7 +3,7 @@ import { useFonts } from 'expo-font';
 import * as Splashscreen from "expo-splash-screen";
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Onboarding, Search, UpdateProfile, Contact, ProfileImage, CountyDetails, AboutCounty, TouristAttraction, PlaceDetails, Favorites } from './src/screens';
+import { Onboarding, Search, UpdateProfile, Contact, ProfileImage, CountyDetails, AboutCounty, TouristAttraction, PlaceDetails, Favorites, Hotels, HotelDetails } from './src/screens';
 import BottomTabNavigation from './src/navigation/BottomTabNavigation';
 import { DefaultTheme } from 'react-native-paper';
 import ThemeContext, { ThemeProvider } from './src/constants/themeContext';
@@ -29,8 +29,6 @@ const linking = {
 
 export default function App() {
 
-  const [counties, setCounties] = useState([]);
-
   const [fontsLoaded] = useFonts({
     regular: require('./assets/fonts/regular.otf'),
     bold: require('./assets/fonts/bold.otf'),
@@ -50,19 +48,6 @@ const onLayoutRootView = useCallback(async () => {
         await Splashscreen.hideAsync();
     }
 }, [fontsLoaded]);
-
-  const getDataFromDatabase = async () => {
-    try {
-      const response = await axios.get('http://10.9.31.61:5003/api/counties');
-      setCounties(response.data.counties);
-    } catch (error) {
-      console.error('Error fetching data from database:', error);
-    }
-  };
-
-  useEffect(() => {
-    getDataFromDatabase();
-  }, []);
 
   if (!fontsLoaded) {
     return null; 
@@ -105,6 +90,27 @@ const onLayoutRootView = useCallback(async () => {
               fontWeight: 'bold'} }} />
               <Stack.Screen name='PlaceDetails' component={PlaceDetails} options={{ headerShown: false }} />
               <Stack.Screen name='Favorites' component={Favorites} options={{ headerShown: true, headerBackTitle: 'Back', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader }, headerTitleStyle: {fontWeight: 'bold'} }} />
+              <Stack.Screen name='Hotels' component={Hotels} options={{ headerShown: true, headerBackTitle: 'Back', title: 'Accommodation', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader }, headerTitleStyle: {fontWeight: 'bold'} }} />
+              <Stack.Screen
+                  name='HotelDetails'
+                  component={HotelDetails}
+                  options={({ route }) => {
+                    
+                    return {
+                      headerShown: true,
+                      headerBackTitle: 'Back',
+                      title: route.params && route.params.title ? route.params.title : 'Default Hotel Title',
+                      headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background,
+                      headerStyle: {
+                        backgroundColor: userTheme === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader
+                      },
+                      headerTitleStyle: {
+                        fontWeight: 'bold'
+                      }
+                    };
+                  }}
+                />
+
             </Stack.Navigator>
           </NavigationContainer>
           </GestureHandlerRootView>

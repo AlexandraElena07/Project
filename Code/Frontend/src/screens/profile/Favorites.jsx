@@ -29,57 +29,99 @@ const FavoriteScreen = ({ navigation }) => {
   const fetchFavorites = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+  
       const response = await axios.get('http://10.9.31.61:5003/api/users/favorites', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        timeout: 10000 // Ajustează timpul de așteptare (în milisecunde)
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 10000
       });
   
-      const favoritesData = response.data.favorites;
   
-      // Preluăm detaliile fiecărui item
+      if (!response.data || !response.data.favorites) {
+        console.error('Favorites data is missing or undefined');
+        setGroupedFavorites([]);
+        return;
+      }
+  
+      const favoritesData = response.data.favorites || [];
+  
       const detailedFavorites = await Promise.all(favoritesData.map(async (fav) => {
-        if (fav.type === 'Place') {
-          const placeResponse = await axios.get(`http://10.9.31.61:5003/api/places/${fav._id}`, {
+        //console.log('Processing favorite:', fav);
+        try {
+          const getTypeUrl = (type) => {
+            if (type.toLowerCase() === 'county') return 'counties';
+            return `${type.toLowerCase()}s`;
+          };
+      
+          const res = await axios.get(`http://10.9.31.61:5003/api/${getTypeUrl(fav.type)}/${fav._id}`, {
             timeout: 10000
           });
-          if (placeResponse.data.place) {
-            return { ...fav, details: placeResponse.data.place };
+      
+          //console.log(`Details for ${fav.type}`, res.data);
+      
+          if (!res.data) return null;
+          
+          let details;
+          let customTitle;
+      
+          switch(fav.type) {
+            case 'County':
+              details = res.data;
+              customTitle = 'About County';
+              break;
+            case 'Place':
+              details = res.data.place || res.data;
+              customTitle = 'Tourist Attraction';
+              break;
+            case 'Hotel':
+              details = res.data.hotel || res.data;
+              customTitle = 'Accommodation';
+              break;
+            default:
+              return null;
           }
-        } else if (fav.type === 'County') {
-          const countyResponse = await axios.get(`http://10.9.31.61:5003/api/counties/${fav._id}`, {
-            timeout: 10000
-          });
-          if (countyResponse.data) {
-            return { ...fav, details: countyResponse.data }; // Utilizăm întreg răspunsul pentru county
-          }
+          // Attach customTitle to the object returned
+          return details ? { ...fav, details, customTitle } : null;
+        } catch (error) {
+          console.error(`Failed to fetch details for ${fav.type.toLowerCase()}: ${error}`);
+          return null;
+        }
+      }));
+
+      const filteredDetailedFavorites = detailedFavorites.filter(fav => fav !== null);
+  
+      
+      const groupedData = ['County', 'Place', 'Hotel'].map(type => {
+        const sectionData = filteredDetailedFavorites.filter(item => item.type === type);
+        if (sectionData.length > 0) {
+          const title = sectionData[0].customTitle; // Use the customTitle from the first item of each type
+          return { title, data: sectionData };
         }
         return null;
-      }));
-  
-      const filteredDetailedFavorites = detailedFavorites.filter(fav => fav !== null);
-      setFavorites(filteredDetailedFavorites);
-  
-      const groupedData = [
-        {
-          title: 'Tourist Attraction',
-          data: filteredDetailedFavorites.filter(item => item.type === 'Place')
-        },
-        {
-          title: 'County Details',
-          data: filteredDetailedFavorites.filter(item => item.type === 'County')
-        }
-      ];
-  
-      const filteredGroupedData = groupedData.filter(section => section.data.length > 0);
-  
-      setGroupedFavorites(filteredGroupedData);
+      }).filter(section => section !== null);
+      
+      
+      //console.log('Grouped data:', groupedData);
+      setGroupedFavorites(groupedData);
+
+      if (!groupedFavorites.length) {
+        return <Text>No favorites to display.</Text>;
+      }
+
+      //console.log('Grouped data before formatting:', groupedData);
+      //const formattedGroupedData = getFormattedData(groupedData);
+      //console.log('Formatted grouped data:', formattedGroupedData);
+      
   
     } catch (error) {
       console.error('Error fetching favorites:', error);
+      Alert.alert('Error', 'Failed to fetch favorites.');
     }
   };
+  
   
 
   const navigateToItem = async (item) => {
@@ -95,6 +137,18 @@ const FavoriteScreen = ({ navigation }) => {
       } catch (error) {
         console.error('Error fetching place details:', error);
       }
+    } else if (item.type === 'Hotel') {
+      try {
+        const response = await axios.get(`http://10.9.31.61:5003/api/hotels/${item._id}`);
+
+        if (response.data.hotel) {
+          navigation.navigate('HotelDetails', {itemId: item._id});
+        } else {
+          console.error('Hotel not found in the response');
+        }
+      } catch (error) {
+        console.error('Error fetching hotel details:', error);
+      }
     } else if (item.type === 'County') {
       try {
         const response = await axios.get(`http://10.9.31.61:5003/api/counties/${item._id}`);
@@ -105,7 +159,7 @@ const FavoriteScreen = ({ navigation }) => {
           console.error('County not found in the response');
         }
       } catch (error) {
-        console.error('Error fetching county details:', error);
+        console.error('Error fetching hotel details:', error);
       }
     }
   };
@@ -130,8 +184,8 @@ const FavoriteScreen = ({ navigation }) => {
     
       const response = await axios.post('http://10.9.31.61:5003/api/users/removeFromFavorites', {
         userId: userId,
-        itemId: itemId,  // Corectat pentru a folosi parametrul funcției
-        itemType: itemType  // Adăugat itemType ca parametru necesar pentru API
+        itemId: itemId,  
+        itemType: itemType  
       }, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -165,7 +219,25 @@ const FavoriteScreen = ({ navigation }) => {
 
  const renderFavorite = ({ item }) => {
   const getContent = () => {
-  if (item.type === 'Place') {
+    if (item.type === 'County') {
+      return (
+        item.isEmpty ? (
+          <View style={styles.emptyCard}></View>
+        ) : (
+        <View style={styles.card}>
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: item.details.imageUrl }} style={styles.image} />
+            <TouchableOpacity style={styles.box} onPress={() => removeFromFavorites(item._id, item.type)}>
+              <MaterialIcons name="favorite" size={25} color={COLORS.red} />
+            </TouchableOpacity>
+          </View>
+          <View style={{ backgroundColor: currentTheme.backgroundTiles, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
+            <Text style={[styles.title, { color: currentTheme.textButton }]}>{item.details.county}</Text>
+          </View>
+        </View>
+        ));
+
+    } else if (item.type === 'Place') {
       return (
         item.isEmpty ? (
           <View style={styles.emptyCard}></View>
@@ -182,19 +254,22 @@ const FavoriteScreen = ({ navigation }) => {
           </View>
         </View>)
       );
-    } else if (item.type === 'County') {
+    } else if (item.type === 'Hotel') {
       return (
+        item.isEmpty ? (
+          <View style={styles.emptyCard}></View>
+        ) : (
         <View style={styles.card}>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: item.details.imageUrl }} style={styles.image} />
+            <Image source={{ uri: item.details.imageUrls[0] }} style={styles.image} />
             <TouchableOpacity style={styles.box} onPress={() => removeFromFavorites(item._id, item.type)}>
-              <MaterialIcons name="favorite" size={25} color={COLORS.red} />
+              <MaterialIcons name="favorite" size={26} color={COLORS.red} />
             </TouchableOpacity>
           </View>
           <View style={{ backgroundColor: currentTheme.backgroundTiles, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
-            <Text style={[styles.title, { color: currentTheme.textButton }]}>{item.details.county}</Text>
+            <Text style={[styles.title, { color: currentTheme.textButton }]}>{item.details.title}</Text>
           </View>
-        </View>
+        </View>)
       );
     }
   };
@@ -216,13 +291,14 @@ const FavoriteScreen = ({ navigation }) => {
       numColumns={2}
       contentContainerStyle={styles.sectionContent}
       ListFooterComponent={<View style={styles.footerSpace} />}
+      showsVerticalScrollIndicator={false}
     />
   );
   
     return (
       <View style={[styles.container, {backgroundColor: currentTheme.background}]}>
         <SectionList
-          sections={getFormattedData(groupedFavorites)}
+          sections={groupedFavorites}
           keyExtractor={(item, index) => item._id + index}
           renderItem={() => null}
           renderSectionHeader={({ section: { title } }) => (
@@ -230,6 +306,7 @@ const FavoriteScreen = ({ navigation }) => {
           )}
 
           renderSectionFooter={({ section }) => renderSection({ section })}
+          showsVerticalScrollIndicator={false}
         />
       </View>
     );

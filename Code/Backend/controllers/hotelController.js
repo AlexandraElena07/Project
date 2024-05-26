@@ -1,0 +1,109 @@
+const Hotel = require("../models/Hotel")
+
+module.exports = {
+    addHotels: async(req, res, next) => {
+        const { county_id, imageUrls, location, title, latitude, longitude, category, mail, phone, adress, website, bookingsite } = req.body;
+
+        try {
+            const newHotel = new Hotel({
+                county_id, 
+                imageUrls, 
+                location, 
+                title, 
+                category, 
+                latitude, 
+                longitude,
+                mail,
+                phone,
+                adress,
+                website,
+                bookingsite
+            })
+
+            await newHotel.save();
+
+            res.status(201).json({status: true})
+        } catch(error) {
+            return next(error)
+        }
+    },
+
+    addReview: async (req, res, next) => {
+        const hotelId = req.params.id;
+        const { username, rating, reviewText } = req.body;
+
+        try {
+            const hotel = await Hotel.findById(hotelId, {createdAt: 0, updatedAt: 0, _v: 0})
+
+            if (!hotel) {
+                return res.status(404).json({ message: "Hotel not found" });
+            }
+
+            const newReview = {
+                username,
+                rating,
+                reviewText
+            };
+
+            hotel.reviews.push(newReview);
+            await hotel.save();
+
+            res.status(201).json({ status: true, message: "Review added successfully" });
+        } catch (error) {
+            return next(error);
+        }
+    },
+
+    getHotels: async(req, res, next) => {
+        try {
+            const hotels = await Hotel.find({}, '_id county_id imageUrls location title category latitude longitude mail phone adress website bookingsite reviews')
+
+            res.status(200).json({hotels})
+        } catch (error) {
+            return next(error)
+        }
+    },
+
+    getHotel: async(req, res, next) => {
+        const hotelId = req.params.id;
+
+        try {
+            const hotel = await Hotel.findById(hotelId, {createdAt: 0, updatedAt: 0, _v: 0})
+
+            if (!hotel) {
+                return res.status(404).json({ message: "Hotel not found" });
+            }
+
+            const totalRatings = hotel.reviews.reduce((sum, review) => sum + review.rating, 0);
+            const averageRating = hotel.reviews.length > 0 ? totalRatings / hotel.reviews.length : 0;
+
+            res.status(200).json({hotel, averageRating})
+        } catch (error) {
+            return next(error)
+        }
+    },
+
+    getHotelsByCounty: async (req, res, next) => {
+        const countyId = req.params.id;
+
+        try {
+            const hotels = await Hotel.find({county_id: countyId}, {createdAt:0, updatedAt: 0, _v: 0})
+
+            if(hotels.length === 0) {
+                return res.status(200).json([])
+            }
+
+            const hotelsWithRating = hotels.map(hotel => {
+                const totalRatings = hotel.reviews.reduce((sum, review) => sum + review.rating, 0);
+                const averageRating = hotel.reviews.length > 0 ? totalRatings / hotel.reviews.length : 0;
+                return { ...hotel._doc, averageRating }; // _doc is used to get the plain object
+            });
+
+            return res.status(200).json({ hotels: hotelsWithRating })
+        } catch(error) {
+            return next(error)
+        }
+    }
+
+    
+}

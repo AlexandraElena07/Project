@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Place = require('../models/Places');
 const County = require('../models/County');
+const Hotel = require('../models/Hotel')
 
 module.exports = {
     deleteUser: async (req, res, next) => {
@@ -40,7 +41,15 @@ module.exports = {
                 return res.status(401).json({ message: 'User not found' });
             }
 
-            const item = itemType === 'Place' ? await Place.findById(itemId) : await County.findById(itemId);
+            let item; 
+
+            if (itemType === 'Place') {
+                item = await Place.findById(itemId); 
+            } else if (itemType === 'County') {
+                item = await County.findById(itemId); 
+            } else {
+                item = await Hotel.findById(itemId); 
+            }            
             
             if (!item) {
                 return res.status(401).json({ message: `${itemType} not found` });

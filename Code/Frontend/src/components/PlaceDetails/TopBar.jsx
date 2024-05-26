@@ -1,11 +1,17 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import themeContext from '../../constants/themeContext';
+import themeDark from '../../constants/themeDark';
 
 const TopBar = ({ activeTab, setActiveTab, averageRating }) => {
+
+    const userTheme = useContext(themeContext);
+    const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: currentTheme.background,}]}>
             {['Contact', 'History', 'Rating'].map(tab => {
                 let tabContent;
 

@@ -15,6 +15,8 @@ import AboutCounty from "./details/AboutCounty"
 import TouristAttraction from "./details/TouristAttraction"
 import PlaceDetails from "./details/PlaceDetails"
 import Favorites from "./profile/Favorites"
+import Hotels from "./details/Hotels"
+import HotelDetails from "./details/HotelDetails"
 
 export {
     Onboarding,
@@ -33,5 +35,7 @@ export {
     AboutCounty, 
     TouristAttraction,
     PlaceDetails,
-    Favorites
+    Favorites,
+    Hotels,
+    HotelDetails
 }

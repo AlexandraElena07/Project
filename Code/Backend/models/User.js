@@ -8,7 +8,7 @@ const favoriteSchema = new mongoose.Schema({
     type: {
       type: String,
       required: true,
-      enum: ['Place', 'County'],
+      enum: ['Place', 'County', 'Hotel'],
     }
   });
 

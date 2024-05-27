@@ -2,7 +2,7 @@ const County = require("../models/County");
 
 module.exports = {
     addCounty: async (req, res, next) => {
-        const {county, description, imageUrl, videoId, attraction} = req.body;
+        const {county, description, imageUrl, videoId, attraction, hotel, event} = req.body;
 
         try {
 
@@ -11,7 +11,9 @@ module.exports = {
                 description,
                 imageUrl,
                 videoId,
-                attraction
+                attraction,
+                hotel,
+                event
             });
 
             await newCounty.save();
@@ -66,6 +68,33 @@ module.exports = {
                 county.hotel.splice(index, 1)
             } else {
                 county.hotel.push(hotelId);
+            }
+
+            await county.save();
+
+            res.status(200).json({status: true})
+        } catch (error) {
+            return next(error)
+        }
+ 
+    },
+
+    addEventsToCounty: async (req, res, next) => {
+        const {countyId, eventId} = req.body;
+
+        try {
+            const county = await Event.findById(eventId);
+
+            if(!county) {
+                return res.status(404).json({message: "County not found"})
+            }
+
+            const index = county.event.indexOf(eventId);
+
+            if(index !== -1) {
+                county.event.splice(index, 1)
+            } else {
+                county.event.push(eventId);
             }
 
             await county.save();

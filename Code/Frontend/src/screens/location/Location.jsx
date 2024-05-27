@@ -215,11 +215,11 @@ const LocationPage = () => {
                      <View style={reusable.rowWithSpace('space-between')}>
                         <View style={reusable.rowWithSpace('flex-start')}>                          
                             
-                           <NetworkImage source={selectedHotel ? selectedHotel.imageUrls[0] : selectedPlace.imageUrls[0]} width={80} height={80} radius={12}/>
+                           <NetworkImage source={selectedHotel ? selectedHotel.imageUrls[0] : selectedPlace.imageUrls[0]} width={85} height={85} radius={12}/>
 
-                            <WidthSpacer width={20}/>
+                            <WidthSpacer width={10}/>
                            
-                           <View>
+                           <View style={{width: '75%'}}>
                               <ReusableText
                                  text={selectedHotel ? selectedHotel.title : selectedPlace.title}
                                  family={'bold'}
@@ -277,7 +277,6 @@ const styles = StyleSheet.create({
   },
   innerModal: {
       padding: 10,
-      shadowColor: '#000',
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5,

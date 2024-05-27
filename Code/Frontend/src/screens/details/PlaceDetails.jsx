@@ -24,6 +24,8 @@ const PlaceDetails = () => {
    const route = useRoute();
    const id = route.params;
 
+   console.log(id)
+
    const [place, setPlaces] = useState(null)
    const [activeTab, setActiveTab] = useState('History');
    const topRef = useRef();

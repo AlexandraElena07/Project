@@ -3,7 +3,7 @@ import { useFonts } from 'expo-font';
 import * as Splashscreen from "expo-splash-screen";
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Onboarding, Search, UpdateProfile, Contact, ProfileImage, CountyDetails, AboutCounty, TouristAttraction, PlaceDetails, Favorites, Hotels, HotelDetails } from './src/screens';
+import { Onboarding, Search, UpdateProfile, Contact, ProfileImage, CountyDetails, AboutCounty, TouristAttraction, PlaceDetails, Favorites, Hotels, HotelDetails, EventDetails } from './src/screens';
 import BottomTabNavigation from './src/navigation/BottomTabNavigation';
 import { DefaultTheme } from 'react-native-paper';
 import ThemeContext, { ThemeProvider } from './src/constants/themeContext';
@@ -108,6 +108,24 @@ const onLayoutRootView = useCallback(async () => {
                         fontWeight: 'bold'
                       }
                     };
+                  }}
+                />
+
+                <Stack.Screen
+                  name='EventDetails'
+                  component={EventDetails}
+                  options={{
+                      headerShown: true,
+                      headerBackTitle: 'Back',
+                      title: 'Events',
+                      headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background,
+                      headerStyle: {
+                        backgroundColor: userTheme === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader
+                      },
+                      headerTitleStyle: {
+                        fontWeight: 'bold'
+                      }
+                    
                   }}
                 />
 

@@ -17,6 +17,7 @@ import PlaceDetails from "./details/PlaceDetails"
 import Favorites from "./profile/Favorites"
 import Hotels from "./details/Hotels"
 import HotelDetails from "./details/HotelDetails"
+import EventDetails from "./events/EventDetails"
 
 export {
     Onboarding,
@@ -37,5 +38,6 @@ export {
     PlaceDetails,
     Favorites,
     Hotels,
-    HotelDetails
+    HotelDetails,
+    EventDetails
 }

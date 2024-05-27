@@ -16,6 +16,12 @@ const CountySchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Hotel"
         }
+    ],
+    event: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Event"
+        }
     ]
 }, {timestamps: true});
  

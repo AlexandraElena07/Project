@@ -1,8 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, View, Text, Linking, TouchableOpacity, StyleSheet, Modal, TextInput, Alert } from 'react-native';
+import { SafeAreaView, ScrollView, View, Text, Linking, TouchableOpacity, StyleSheet, Modal, Alert, Share, TextInput } from 'react-native';
 import themeContext from '../../constants/themeContext';
 import themeDark from '../../constants/themeDark';
-import { BottomButtons, HeightSpacer, ImageCarousel, ReusableText, Tiles, TopButtons, WidthSpacer } from '../../components';
+import { BottomButtons, HeightSpacer, ImageCarousel, ReusableText, Tiles, TopBarHotel, WidthSpacer } from '../../components';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { COLORS, SIZES, TEXT } from '../../constants/theme';
@@ -18,9 +18,9 @@ const HotelDetails = () => {
     const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
 
     const route = useRoute();
-    const {itemId} = route.params
+    const id = route.params;
 
-    const [activeTab, setActiveTab] = useState('Home');
+    const [activeTab, setActiveTab] = useState('CONTACT');
     const navigation = useNavigation();
 
     const [hotel, setHotels] = useState(null);
@@ -51,12 +51,12 @@ const HotelDetails = () => {
     const getDataFromDatabase = async () => {
       try {
           
-          const response = await axios.get(`http://10.9.31.61:5003/api/hotels/${itemId}`);
+          const response = await axios.get(`http://10.9.31.61:5003/api/hotels/${id}`);
           const hotelData = response.data.hotel;
           setHotels(hotelData);
 
           navigation.setOptions({
-            title: response.data.hotel.title + ' ' + capitalizeFirstLetter(response.data.hotel.category),
+            title: response.data.hotel.title,
             headerBackTitle: 'Back'
           });
 
@@ -163,7 +163,7 @@ const HotelDetails = () => {
         userLocation();
         getUser();
         checkIfFavorite();
-    }, [itemId, navigation]);
+    }, [id, navigation]);
 
     const handleStarPress = (star) => {
         setRating(star);  // Actualizăm ratingul direct
@@ -199,15 +199,15 @@ const HotelDetails = () => {
                 Alert.alert('Error', 'You need to be logged in to submit a review.');
                 return;
             }
-
+     
             const authResponse = await axios.get('http://10.9.31.61:5003/api/check', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
-    
-            const response = await axios.post(`http://10.9.31.61:5003/api/hotels/addReview/${itemId}`, {
-                username: authResponse.data.username, // Asumăm că userId este stocat sau obținut anterior
+     
+            const response = await axios.post(`http://10.9.31.61:5003/api/hotels/addReview/${id}`, {
+                username: authResponse.data.username,
                 rating,
                 reviewText: review
             }, {
@@ -215,21 +215,22 @@ const HotelDetails = () => {
                     Authorization: `Bearer ${token}`
                 }
             });
-    
-            if (response.data.success) {
+     
+            if (response.data.status) {
                 Alert.alert('Success', 'Review added successfully!');
                 handleModalClose();
-                // Reîncarcă datele pentru a afișa noua recenzie
-                getDataFromDatabase(); 
+     
+                getDataFromDatabase();
+                
             } else {
                 Alert.alert('Error', 'Failed to add review.');
             }
-    
+     
         } catch (error) {
             console.error('Error:', error);
             Alert.alert('Error', 'Something went wrong. Please try again later.');
         }
-    };
+     };
 
     const checkIfFavorite = async () => {
         try {
@@ -246,7 +247,7 @@ const HotelDetails = () => {
             }
           });
      
-          const isFav = response.data.favorites.some(fav => fav._id === itemId && fav.type === 'Hotel');
+          const isFav = response.data.favorites.some(fav => fav._id === id && fav.type === 'Hotel');
           setIsFavorite(isFav);
         } catch (error) {
           console.error('Error checking favorite status:', error);
@@ -254,7 +255,7 @@ const HotelDetails = () => {
      };
      
      
-      const handleAddToFavorites = async (itemId, itemType) => {
+     const handleAddToFavorites = async (itemId, itemType) => {
         try {
           const token = await AsyncStorage.getItem('token');
           const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
@@ -272,7 +273,7 @@ const HotelDetails = () => {
      
           const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
             userId: authResponse.data.userId, 
-            itemId: itemId,
+            itemId,
             itemType
           }, {
             headers: {
@@ -289,283 +290,312 @@ const HotelDetails = () => {
           Alert.alert('Error', 'Something went wrong. Please try again.');
         }
       };
+
+    const handleShare = async () => {
+    try {
+        const result = await Share.share({
+        message: `Check out this place: ${hotel.title} - ${hotel.location}\n\nView more at: exp://10.9.31.61:8081/--/roexplorer://${hotel.title}/${id}`,
+        });
     
-
-
-    const HomeScreen = () => (
-        <View style={[ {backgroundColor: currentTheme.background,}]}>
-            {hotel && (<ImageCarousel images={hotel.imageUrls}/>)}
-
-            {hotel &&  (
-                <View style={{ padding: 20, marginRight: 5}}>
-
-                <View style={reusable.rowWithSpace('space-between')}>
-                        <View style={reusable.rowWithSpace('flex-start')}>                          
-                            
-                            <ReusableText
-                                text={hotel.title}
-                                family={'bold'}
-                                color={currentTheme.color}
-                                size={TEXT.xLarge}
-                            />
-
-                            <WidthSpacer width={20}/>
-
-                            {renderStarsOfHotel(hotel.star)}
-                        </View>    
-                    </View>
-
-
-                    <HeightSpacer height={5}/>
-
-                    <View style={reusable.rowWithSpace('space-between')}>
-                        <View style={reusable.rowWithSpace('flex-start')}>
-                            <MaterialIcons name="place" size={SIZES.medium} color={currentTheme.color}/>
-                                    
-                            <WidthSpacer width={5}/>
-
-                            <ReusableText
-                                text={hotel.location}
-                                family={''}
-                                size={SIZES.medium}
-                                color={currentTheme.color}
-                            />
-                        </View>    
-                    </View>
-
-                    <HeightSpacer height={30}/>
-
-                    <ReusableText
-                        text={'Contact Data'}
-                        family={'regular'}
-                        color={currentTheme.color}
-                        size={TEXT.large}
-                    />
-
-                    <HeightSpacer height={20}/>
-
-                    {hotel.phone && (
-                    <>
-                        <View style={reusable.rowWithSpace('space-between')}>
-                            <View style={reusable.rowWithSpace('flex-start')}>
-                                    <Tiles title={" "} icon={'phone'}/>
-                                    <TouchableOpacity onPress={handleCallPress}>
-                                        <ReusableText
-                                            text={hotel.phone}
-                                            family={''}
-                                            size={TEXT.medium}
-                                            color={currentTheme.phone}
-                                        />
-                                    </TouchableOpacity>
-                            </View>
-                        </View>
-                        <HeightSpacer height={10} />
-                    </>
-                    )}
-
-                    {hotel.mail && (
-                    <>
-                        <View style={reusable.rowWithSpace('space-between')}>
-                            <View style={reusable.rowWithSpace('flex-start')}>
-                                    <Tiles title={" "} icon={'mail'}/>
-                                    <TouchableOpacity onPress={sendEmail}>
-                                        <ReusableText
-                                            text={hotel.mail}
-                                            family={''}
-                                            size={TEXT.medium}
-                                            color={currentTheme.phone}
-                                        />
-                                    </TouchableOpacity>
-                            </View>
-                        </View>
-                        <HeightSpacer height={10} />
-                    </>
-                    )}
-
-                    {hotel.website && (
-                    <>
-                        <View style={reusable.rowWithSpace('space-between')}>
-                            <View style={reusable.rowWithSpace('flex-start')}>
-                                    <Tiles title={" "} icon={'link'}/>
-                                    <TouchableOpacity onPress={() => handleSitePress(hotel.website)}>
-                                        <ReusableText
-                                            text={hotel.website}
-                                            family={''}
-                                            size={TEXT.medium}
-                                            color={currentTheme.phone}
-                                        />
-                                    </TouchableOpacity>
-                            </View>
-                        </View>
-                        <HeightSpacer height={10} />
-                    </>
-                    )}
-
-                    {hotel.bookingsite && (
-                    <>
-                        <View style={reusable.rowWithSpace('space-between')}>
-                            <View style={reusable.rowWithSpace('flex-start')}>
-                                    <Tiles title={" "} icon={'explore'}/>
-                                    <TouchableOpacity onPress={() => handleSitePress(hotel.bookingsite)}>
-                                        <ReusableText
-                                            text={'booking.com'}
-                                            family={''}
-                                            size={TEXT.medium}
-                                            color={currentTheme.phone}
-                                        />
-                                    </TouchableOpacity>
-                            </View>
-                        </View>
-                        <HeightSpacer height={10} />
-                    </>
-                    )}
-
-                    {hotel.adress && (
-                    <>
-                        <View style={reusable.rowWithSpace('space-between')}>
-                            <View style={reusable.rowWithSpace('flex-start')}>
-                                    <Tiles title={" "} icon={'near-me'}/>
-                                    <TouchableOpacity onPress={openGoogleMaps}>
-                                        <ReusableText
-                                            text={hotel.adress}
-                                            family={''}
-                                            size={TEXT.medium}
-                                            color={currentTheme.phone}
-                                        />
-                                    </TouchableOpacity>
-                            </View>
-                        </View>
-                        <HeightSpacer height={10} />
-                    </>
-                    )}
-
+    } catch (error) {
+        alert(error.message);
+    }
+    };
+    
+    const renderContent = () => {
+        switch(activeTab) {
+            case 'CONTACT': 
+                return(
                     <View>
-                    <MapView style={styles.map} region={mapRegion}>
-                        <Marker coordinate={mapRegion} title={hotel.title + ' ' + capitalizeFirstLetter(hotel.category)}/>
-                        <Marker coordinate={mapMyRegion} title="My Location"/>
-                    </MapView>
-
-                    <TouchableOpacity style={styles.directionsButton} onPress={openGoogleMaps}>
-                            <MaterialIcons name="directions" size={34} color="white" />
-                    </TouchableOpacity>
-
+                    <View>
+                        {hotel && (<ImageCarousel images={hotel.imageUrls}/>)}
                     </View>
-
-                    <HeightSpacer height={40}/>
                     
+                    <View style={[styles.contentContainer, {backgroundColor: currentTheme.background, marginTop: 20}]}>
+                        
+        
+                        {hotel &&  (
+                        <View style={reusable.container}>
+            
+                            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                <View style={{ flex: 1, marginRight: 20 }}>  
+                                    <ReusableText
+                                        text={hotel.title}
+                                        family={'bold'}
+                                        color={currentTheme.color}
+                                        size={24}
+                                    />
+                                </View>
 
-            </View>
-            )}
-        </View>
-    );
-
-    const ReviewsScreen = () => {
-        return (
-            <View style={[ {backgroundColor: currentTheme.background, padding: 20}]}>
-                <View style={reusable.rowWithSpace('space-between')}>
-                    <View style={reusable.rowWithSpace('flex-start')}>
-                        <ReusableText
-                            text={'Reviews'}
-                            family={'semibold'}
-                            size={TEXT.medium}
-                            color={currentTheme.color}
-                        />
-    
-                        <WidthSpacer width={130} />
-                        <View style={styles.modalContainer}>
-                            <TouchableOpacity onPress={() => setModalVisible(true)}>
-                                <Tiles title={"Write a review"} icon={'note-alt'} />
-                            </TouchableOpacity>
-                            <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={modalVisible}
-                                onRequestClose={() => setModalVisible(false)}
-                            >
-                                <View style={styles.modalBackground}>
-                                    <View style={[styles.modalView, {backgroundColor: currentTheme.background}]}>
-                                        <View style={styles.modalCenter}>
-                                            <ReusableText
-                                                text={'Add a Review'}
-                                                family={'semibold'}
-                                                size={TEXT.medium}
-                                                color={currentTheme.color}
-                                            />
-    
-                                            <View style={styles.starsContainer}>
-                                                {[1, 2, 3, 4, 5].map(star => (
-                                                    <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
-                                                        <MaterialIcons
-                                                            name={star <= rating ? 'star' : 'star-outline'}
-                                                            size={40}
-                                                            color={COLORS.yellow}
-                                                        />
-                                                    </TouchableOpacity>
-                                                ))}
-                                            </View>
-    
-                                            <TextInput
-                                                label="Enter your review comment"
-                                                value={review}
-                                                onChangeText={text => setReview(text)}
-                                                mode="outlined"
-                                                multiline={true}
-                                                style={[styles.input, { backgroundColor: currentTheme.background }]}
-                                                theme={{ colors: { placeholder: currentTheme.color, text: currentTheme.color, primary: currentTheme.color, underlineColor: 'transparent', background: currentTheme.background } }}
-                                            />
-    
-                                            <HeightSpacer height={25}/>
-    
-                                            <View style={reusable.rowWithSpace('space-between')}>
-                                                <TouchableOpacity style={styles.deleteButton} onPress={() => handleSubmit()}>
-                                                    <Text style={styles.buttonTextDelete}>Submit</Text>
+                                {renderStarsOfHotel(hotel.star)}
+                            </View>
+            
+            
+                                <HeightSpacer height={5}/>
+            
+                                <View style={reusable.rowWithSpace('space-between')}>
+                                    <View style={reusable.rowWithSpace('flex-start')}>
+                                        <MaterialIcons name="place" size={SIZES.medium} color={currentTheme.color}/>
+                                                
+                                        <WidthSpacer width={5}/>
+            
+                                        <ReusableText
+                                            text={hotel.location}
+                                            family={''}
+                                            size={SIZES.medium}
+                                            color={currentTheme.color}
+                                        />
+                                    </View>    
+                                </View>
+            
+                                <HeightSpacer height={30}/>
+            
+                                <ReusableText
+                                    text={'Contact Data'}
+                                    family={'regular'}
+                                    color={currentTheme.color}
+                                    size={TEXT.large}
+                                />
+            
+                                <HeightSpacer height={20}/>
+            
+                                {hotel.phone && (
+                                <>
+                                    <View style={reusable.rowWithSpace('space-between')}>
+                                        <View style={reusable.rowWithSpace('flex-start')}>
+                                                <Tiles title={" "} icon={'phone'}/>
+                                                <TouchableOpacity onPress={handleCallPress}>
+                                                    <ReusableText
+                                                        text={hotel.phone}
+                                                        family={''}
+                                                        size={TEXT.medium}
+                                                        color={currentTheme.phone}
+                                                    />
                                                 </TouchableOpacity>
-    
-                                                <WidthSpacer width={35}/>
-    
-                                                <TouchableOpacity style={styles.buttonCancel} onPress={handleModalClose}>
-                                                    <Text style={styles.buttonTextCancel}>Cancel</Text>
-                                                </TouchableOpacity>
-                                            </View>
                                         </View>
                                     </View>
+                                    <HeightSpacer height={10} />
+                                </>
+                                )}
+            
+                                {hotel.mail && (
+                                <>
+                                    <View style={reusable.rowWithSpace('space-between')}>
+                                        <View style={reusable.rowWithSpace('flex-start')}>
+                                                <Tiles title={" "} icon={'mail'}/>
+                                                <TouchableOpacity onPress={sendEmail}>
+                                                    <ReusableText
+                                                        text={hotel.mail}
+                                                        family={''}
+                                                        size={TEXT.medium}
+                                                        color={currentTheme.phone}
+                                                    />
+                                                </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    <HeightSpacer height={10} />
+                                </>
+                                )}
+            
+                                {hotel.website && (
+                                <>
+                                    <View style={reusable.rowWithSpace('space-between')}>
+                                        <View style={reusable.rowWithSpace('flex-start')}>
+                                                <Tiles title={" "} icon={'link'}/>
+                                                <TouchableOpacity onPress={() => handleSitePress(hotel.website)}>
+                                                    <ReusableText
+                                                        text={hotel.website}
+                                                        family={''}
+                                                        size={TEXT.medium}
+                                                        color={currentTheme.phone}
+                                                    />
+                                                </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    <HeightSpacer height={10} />
+                                </>
+                                )}
+            
+                                {hotel.bookingsite && (
+                                <>
+                                    <View style={reusable.rowWithSpace('space-between')}>
+                                        <View style={reusable.rowWithSpace('flex-start')}>
+                                                <Tiles title={" "} icon={'explore'}/>
+                                                <TouchableOpacity onPress={() => handleSitePress(hotel.bookingsite)}>
+                                                    <ReusableText
+                                                        text={'booking.com'}
+                                                        family={''}
+                                                        size={TEXT.medium}
+                                                        color={currentTheme.phone}
+                                                    />
+                                                </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    <HeightSpacer height={10} />
+                                </>
+                                )}
+            
+                                {hotel.adress && (
+                                <>
+                                    <View style={reusable.rowWithSpace('space-between')}>
+                                        <View style={reusable.rowWithSpace('flex-start')}>
+                                                <Tiles title={" "} icon={'near-me'}/>
+                                                <TouchableOpacity onPress={openGoogleMaps}>
+                                                    <ReusableText
+                                                        text={hotel.adress}
+                                                        family={''}
+                                                        size={TEXT.medium}
+                                                        color={currentTheme.phone}
+                                                    />
+                                                </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    <HeightSpacer height={10} />
+                                </>
+                                )}
+            
+                                <View>
+                                <MapView style={styles.map} region={mapRegion}>
+                                    <Marker coordinate={mapRegion} title={hotel.title + ' ' + capitalizeFirstLetter(hotel.category)}/>
+                                    <Marker coordinate={mapMyRegion} title="My Location"/>
+                                </MapView>
+            
+                                <TouchableOpacity style={styles.directionsButton} onPress={openGoogleMaps}>
+                                        <MaterialIcons name="directions" size={34} color="white" />
+                                </TouchableOpacity>
+            
                                 </View>
-                            </Modal>
+            
+                                <HeightSpacer height={40}/>
+                        </View>
+                        )}
+                    </View> 
+                    </View>               
+                    )
+            case 'RATING': 
+                return (
+                    <View style={[ {backgroundColor: currentTheme.background, padding: 20}]}>
+                        <View style={reusable.rowWithSpace('space-between')}>
+                            <View style={reusable.rowWithSpace('flex-start')}>
+                                <ReusableText
+                                    text={'Reviews'}
+                                    family={'semibold'}
+                                    size={TEXT.medium}
+                                    color={currentTheme.color}
+                                />
+            
+                                <WidthSpacer width={130} />
+                                <View style={styles.modalContainer}>
+                                <TouchableOpacity onPress={() => setModalVisible(true)}>
+                                    <Tiles title={"Write a review"} icon={'note-alt'} />
+                                </TouchableOpacity>
+                                    <Modal
+                                        animationType="slide"
+                                        transparent={true}
+                                        visible={modalVisible}
+                                        onRequestClose={() => {
+                                            setModalVisible(!modalVisible);
+                                        }}>
+                                        <View style={styles.modalBackground}>
+                                            <View style={[styles.modalView, {backgroundColor: currentTheme.background}]}>
+                                                <View style={styles.modalCenter}>
+                                                    <ReusableText
+                                                        text={'Reviews'}
+                                                        family={'semibold'}
+                                                        size={TEXT.medium}
+                                                        color={currentTheme.color}
+                                                    />
+
+                                                    <View style={styles.starsContainer}>
+                                                    {[1, 2, 3, 4, 5].map(star => (
+                                                        <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
+                                                            <MaterialIcons
+                                                                name={star <= rating ? 'star' : 'star-outline'}
+                                                                size={40}
+                                                                color={COLORS.yellow}
+                                                            />
+                                                        </TouchableOpacity>
+                                                    ))}
+                                                    </View>
+                                                </View>
+
+                                                <ReusableText
+                                                    text={'Add your comment:'}
+                                                    family={'semibold'}
+                                                    size={TEXT.small}
+                                                    color={currentTheme.color}
+                                                />
+
+                                                <HeightSpacer height={10}/>
+            
+                                                <TextInput                     
+                                                placeholder='Enter your review comment'
+                                                placeholderTextColor={currentTheme.color}
+                                                autoCorrect={false}
+                                                style={styles.input}
+                                                multiline={true}
+                                                returnKeyType='done'
+                                                backgroundColor={currentTheme.background}
+                                                color={currentTheme.color}
+                                                value={review}
+                                                onChangeText={text => setReview(text)}
+                                             />
+
+                                                <HeightSpacer height={25}/>
+
+                                                <View style={reusable.rowWithSpace('space-between')}>
+                                                    <View style={reusable.rowWithSpace('flex-start')}>
+
+                                                        <TouchableOpacity style={styles.deleteButton} onPress={() => handleSubmit()}>
+                                                            <Text style={styles.buttonTextDelete}>Submit</Text>
+                                                        </TouchableOpacity>
+
+                                                        <WidthSpacer width={35}/>
+
+                                                        <TouchableOpacity style={styles.buttonCancel} onPress={()=> handleModalClose()}>
+                                                            <Text style={styles.buttonTextCancel}>Cancel</Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </Modal>                       
+                            </View>
                         </View>
                     </View>
-                </View>
-                <HeightSpacer height={10}/>
-                <View style={[styles.reviewContainer, {backgroundColor: currentTheme.background}]}> 
-                    {hotel.reviews.length > 0 ? (
-                        hotel.reviews.map((review, index) => (
-                            <View key={index} style={styles.reviewItem}>
-                                <View style={styles.reviewHeader}>
-                                    <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
-                                    <View style={styles.starsContainer}>
-                                        {renderStars(review.rating)}
+                        <HeightSpacer height={10}/>
+                        <View style={[styles.reviewContainer, {backgroundColor: currentTheme.background}]}> 
+                            {hotel.reviews.length > 0 ? (
+                                hotel.reviews.map((review, index) => (
+                                    <View key={index} style={styles.reviewItem}>
+                                        <View style={styles.reviewHeader}>
+                                            <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
+                                            <View style={styles.starsContainer}>
+                                                {renderStars(review.rating)}
+                                            </View>
+                                        </View>
+                                        <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
                                     </View>
-                                </View>
-                                <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
-                            </View>
-                        ))
-                    ) : (
-                        <Text style={[styles.noReviews, {color: currentTheme.color}]}>No reviews yet.</Text>
-                    )}
-                </View>
-            </View>
-        );
-    }
-    
+                                ))
+                            ) : (
+                                <Text style={[styles.noReviews, {color: currentTheme.color}]}>No reviews yet.</Text>
+                            )}
+                        </View>
+                    </View>
+                );
+        }
+    };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background }}>
-            <TopButtons activeTab={activeTab} setActiveTab={setActiveTab} />
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 0}}>
-                {activeTab === 'Home' ? <HomeScreen /> : <ReviewsScreen />}
-            </ScrollView>
+            <TopBarHotel activeTab={activeTab} setActiveTab={setActiveTab}  averageRating={averageRating}/>
+            <ScrollView showsVerticalScrollIndicator={false} style={[ {backgroundColor: currentTheme.background}]}>
+                  {renderContent()}
+                  <HeightSpacer height={20}/>
+               </ScrollView>
             {hotel && (<BottomButtons
                 onPressFavorite={()=> handleAddToFavorites(hotel._id, 'Hotel')}
-                onPressShare={() => {}}
+                onPressShare={() => handleShare()}
                 name1={isFavorite ? "favorite" : "favorite-outline"}
                 color1={COLORS.red}
             />)}
@@ -576,9 +606,21 @@ const HotelDetails = () => {
 export default HotelDetails;
 
 const styles = StyleSheet.create({
+    contentContainer: {
+        flex: 1,
+        marginHorizontal: 5
+    },
+    container: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      padding: 10
+    },
     map: {
-        width: SIZES.width-40,
         height: 200
+    },
+    content: {
+      flex: 1,
+      margin: 20
     },
     directionsButton: {
         position: 'absolute',
@@ -625,10 +667,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginVertical: 20,
     },
-     input: {
-        height: 130,
-        textAlignVertical: 'top',
-     },
+    input: {
+        borderWidth: 1,
+        borderRadius: 9,
+        borderColor: COLORS.grey,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        fontSize: SIZES.medium,
+        marginBottom: 10,
+        height: 120
+    },
      deleteButton: {
         flexDirection: 'row',
         height: 34,
@@ -689,20 +737,4 @@ const styles = StyleSheet.create({
         marginTop: 10,
         color: COLORS.grey,
      },
-
-     modalOverlay: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Face fundalul semitransparent
-    },
-    modalContent: {
-        width: '80%',
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-    }
-    
-    
 })

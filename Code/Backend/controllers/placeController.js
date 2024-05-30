@@ -56,9 +56,20 @@ module.exports = {
 
     getPlaces: async(req, res, next) => {
         try {
-            const places = await Place.find({}, '_id price adress phone program longitude latitude category location imageUrls title description county_id')
+            const places = await Place.find({}).populate('reviews'); // Presupunem că există o referință 'reviews' în modelul Place
 
-            res.status(200).json({places})
+            const placesWithRatings = places.map(place => {
+                const totalRatings = place.reviews.reduce((sum, review) => sum + review.rating, 0);
+                const averageRating = place.reviews.length > 0 ? totalRatings / place.reviews.length : 0;
+    
+                // Returnează locația împreună cu averageRating
+                return {
+                    ...place.toObject(), // Convertește documentul Mongoose într-un obiect JavaScript
+                    averageRating // Adaugă ratingul mediu calculat
+                };
+            });
+    
+            res.status(200).json({ places: placesWithRatings });
         } catch (error) {
             return next(error)
         }
@@ -103,7 +114,25 @@ module.exports = {
         } catch(error) {
             return next(error)
         }
-    }
+    },
 
-    
+getTopPlaces: async (req, res, next) => {
+    //console.log('Fetching top places...');
+    try {
+        const places = await Place.find({}).populate('reviews');
+
+        // Calculul averageRating pentru fiecare locație și sortarea acestora
+        const placesWithRatings = places.map(place => {
+            const totalRatings = place.reviews.reduce((sum, review) => sum + review.rating, 0);
+            const averageRating = place.reviews.length > 0 ? totalRatings / place.reviews.length : 0;
+            return { ...place.toObject(), averageRating }; // Adaugă averageRating la fiecare locație
+        }).sort((a, b) => b.averageRating - a.averageRating).slice(0, 5); // Sortează descrescător după averageRating și limitează la primele 3
+
+        console.log('Top places fetched:', placesWithRatings);
+        res.status(200).json(placesWithRatings);
+    } catch (error) {
+        console.error('Error fetching top places:', error);
+        return next(error);
+    }
+    },  
 }

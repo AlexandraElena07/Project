@@ -12,6 +12,7 @@ import TopBar from "./PlaceDetails/TopBar";
 import Tiles from "./Reusable/Tiles";
 import TopButtons from "./Buttons/TopButtons"
 import ImageCarousel from "./Reusable/ImageCarousel";
+import TopBarHotel from "./HotelDetails/TopBarHotel"
 
 export {
     ReusableText,
@@ -27,6 +28,7 @@ export {
     TopBar,
     Tiles,
     TopButtons,
-    ImageCarousel
+    ImageCarousel,
+    TopBarHotel
     
 }

@@ -142,7 +142,7 @@ const FavoriteScreen = ({ navigation }) => {
         const response = await axios.get(`http://10.9.31.61:5003/api/hotels/${item._id}`);
 
         if (response.data.hotel) {
-          navigation.navigate('HotelDetails', {itemId: item._id});
+          navigation.navigate('HotelDetails', item._id);
         } else {
           console.error('Hotel not found in the response');
         }
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     margin: 8,  
   },
   footerSpace: {
-    height: 100
+    height: 10
   }
 
 });

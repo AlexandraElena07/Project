@@ -21,6 +21,7 @@ const HotelSchema = new mongoose.Schema({
     adress: {type: String, require: true},
     website: {type: String, require: true},
     bookingsite: {type: String, require: true},
+    type: { type: String, required: true, default: 'accommodation' },
     reviews: [ReviewSchema]
 }, {timestamps: true});
 

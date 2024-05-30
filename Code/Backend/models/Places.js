@@ -20,6 +20,7 @@ const PlaceSchema = new mongoose.Schema({
     phone: {type: String, require: true},
     adress: {type: String, require: true},
     price: {type: String, require: true},
+    type: { type: String, required: true, default: 'place' },
     reviews: [ReviewSchema]
 }, {timestamps: true});
 

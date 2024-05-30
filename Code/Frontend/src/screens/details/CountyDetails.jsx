@@ -169,7 +169,7 @@ const CountyDetails = ({navigation}) => {
                     contentContainerStyle={{columnGap:SIZES.medium}}
                     showsHorizontalScrollIndicator={false}
                     renderItem={({item}) => (
-                        <TouchableOpacity style={[styles.hotelContainer, { backgroundColor: currentTheme.backgroundTiles}]} onPress={() => navigation.navigate('HotelDetails', {itemId: item._id})}>
+                        <TouchableOpacity style={[styles.hotelContainer, { backgroundColor: currentTheme.backgroundTiles}]} onPress={() => navigation.navigate('HotelDetails', item._id)}>
                             <View style={{alignItems: 'center'}}>
                                 <NetworkImage source={item.imageUrls[0]} width={170} height={170} radius={12}/>
                                 <HeightSpacer height={10}/>

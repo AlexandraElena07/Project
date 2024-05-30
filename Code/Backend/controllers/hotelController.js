@@ -103,7 +103,27 @@ module.exports = {
         } catch(error) {
             return next(error)
         }
-    }
+    },
+
+    getTopHotels: async (req, res, next) => {
+       //console.log('Fetching top hotels...');
+        try {
+            const hotels = await Hotel.find({}).populate('reviews');
+    
+            // Calculul averageRating pentru fiecare locație și sortarea acestora
+            const hotelsWithRatings = hotels.map(hotel => {
+                const totalRatings = hotel.reviews.reduce((sum, review) => sum + review.rating, 0);
+                const averageRating = hotel.reviews.length > 0 ? totalRatings / hotel.reviews.length : 0;
+                return { ...hotel.toObject(), averageRating }; // Adaugă averageRating la fiecare locație
+            }).sort((a, b) => b.averageRating - a.averageRating).slice(0, 5); // Sortează descrescător după averageRating și limitează la primele 3
+    
+            console.log('Top hotels fetched:', hotelsWithRatings);
+            res.status(200).json(hotelsWithRatings);
+        } catch (error) {
+            console.error('Error fetching top hotels:', error);
+            return next(error);
+        }
+    },  
 
     
 }

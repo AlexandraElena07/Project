@@ -133,7 +133,7 @@ const LocationPage = () => {
 
     const handleNavigateHotel = () => {
       if (selectedHotel) {
-        navigation.navigate('HotelDetails', {itemId: selectedHotel._id });
+        navigation.navigate('HotelDetails', selectedHotel._id );
       }
       setModalVisible(false)
     };
@@ -244,7 +244,7 @@ const LocationPage = () => {
                         </View>    
                     </View>
                     <TouchableOpacity style={styles.directionsButton} onPress={selectedHotel ? openGoogleMapsForHotel : openGoogleMapsForPlace}>
-                            <MaterialIcons name="directions" size={34} color="white" />
+                            <MaterialIcons name="directions" size={34} color={currentTheme.color} />
                     </TouchableOpacity>
                </TouchableOpacity>
             </TouchableOpacity>

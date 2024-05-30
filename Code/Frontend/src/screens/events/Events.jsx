@@ -124,7 +124,7 @@ const Events = () => {
                     <NetworkImage source={item.data.imageUrl} width={"100%"} height={210} radius={12} resizeMode={'cover'}/>
                     <HeightSpacer height={15}/>
                     <ReusableText
-                        text={`${item.data.title} ${item.data.county_name} county from ${new Date(item.data.start_date).toLocaleDateString()} to ${new Date(item.data.end_date).toLocaleDateString()}`}
+                        text={`${item.data.title} ${item.data.county_name} from ${new Date(item.data.start_date).toLocaleDateString()} to ${new Date(item.data.end_date).toLocaleDateString()}`}
                         family={'regular'}
                         size={TEXT.medium}
                         color={currentTheme.color}
@@ -133,35 +133,36 @@ const Events = () => {
                     {item.data.eventCounties && item.data.eventCounties.length > 0 && (
                         <View key={item.data.eventCounties[0]._id}>
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                {item.data.eventCounties[0].title && (
+                                {item.data.eventCounties[1].title && (
                                     <Text style={{ color: currentTheme.color, fontSize: 16, lineHeight: 25 }}>
-                                        {`"${item.data.eventCounties[0].title}" `}
+                                        {`"${item.data.eventCounties[1].title}" `}
                                     </Text>
                                 )}
-                                {item.data.eventCounties[0].date && (
+                                {item.data.eventCounties[1].date && (
                                     <Text style={{ color: currentTheme.color, fontSize: 16, lineHeight: 25 }}>
-                                        {`on ${new Date(item.data.eventCounties[0].date).toLocaleDateString()} `}
+                                        {`on ${new Date(item.data.eventCounties[1].date).toLocaleDateString()} `}
                                     </Text>
                                 )}
-                                {item.data.eventCounties[0].time && (
+                                {item.data.eventCounties[1].time && (
                                     <Text style={{ color: currentTheme.color, fontSize: 16, lineHeight: 25 }}>
-                                        {`at ${item.data.eventCounties[0].time} `}
+                                        {`at ${item.data.eventCounties[1].time} `}
                                     </Text>
                                 )}
+                                {item.data.eventCounties[1].description && (
                                 <Text style={{ color: currentTheme.color, fontSize: 16, lineHeight: 25 }}>
-                                    <MaterialIcons name={'arrow-right-alt'} size={TEXT.small} color={currentTheme.color}/>
+                                    {'Details: '}
                                 </Text>                                
-                                
-                                {item.data.eventCounties[0].description && (
+                                )}
+                                {item.data.eventCounties[1].description && (
                                     <TouchableOpacity onPress={() => handleSitePress(item.data.eventCounties[0].description)}>
                                         <Text style={{ color: currentTheme.phone, fontSize: 16, lineHeight: 25, textDecorationLine: 'underline' }}>
-                                            {' details.com'}
+                                            {`${item.data.eventCounties[1].title.slice(0, 5)}... `}
                                         </Text>
                                     </TouchableOpacity>
                                 )}
-                                {item.data.eventCounties[0].location && (
+                                {item.data.eventCounties[1].location && (
                                     <Text style={{ color: currentTheme.color, fontSize: 16, lineHeight: 25 }}>
-                                        {`${item.data.eventCounties[0].location}`}
+                                        {` -> ${item.data.eventCounties[1].location}`}
                                     </Text>
                                 )}
                             </View>

@@ -12,6 +12,7 @@ const hotelRouter = require("./routes/hotel")
 const eventRouter = require("./routes/event")
 const eventCountyRouter = require("./routes/eventcounty")
 const exhibitionCountyRouter = require("./routes/exhibitioncounty")
+const searchRouter = require("./routes/search")
 
 const port = 5003
 
@@ -33,6 +34,7 @@ app.use('/api/hotels', hotelRouter);
 app.use('/api/events', eventRouter);
 app.use('/api/eventCounty', eventCountyRouter);
 app.use('/api/exhibitionCounty', exhibitionCountyRouter);
+app.use('/api/search', searchRouter);
 
 app.get('/', (req, res) => res.send('Hello World!'))
 app.listen(process.env.PORT || port, () => console.log(`Example app listening on port ${process.env.PORT}!`))

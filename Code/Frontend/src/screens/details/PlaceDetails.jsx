@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, FlatList, Image, Linking, TouchableOpacity, Modal, Alert, Share } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, FlatList, Image, Linking, TouchableOpacity, Modal, Alert, Share, TextInput } from 'react-native';
 import themeContext from '../../constants/themeContext';
 import reusable from '../../components/Reusable/reusable.style';
 import themeDark from '../../constants/themeDark';
@@ -11,10 +11,11 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import MapView, {Marker} from 'react-native-maps'
 import * as Location from 'expo-location'
-import { TextInput } from 'react-native-paper';
+//import { TextInput } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PlaceDetails = () => {
+   
 
    const userTheme = useContext(themeContext);
    const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
@@ -23,8 +24,6 @@ const PlaceDetails = () => {
 
    const route = useRoute();
    const id = route.params;
-
-   console.log(id)
 
    const [place, setPlaces] = useState(null)
    const [activeTab, setActiveTab] = useState('History');
@@ -275,198 +274,203 @@ const handleShare = async () => {
  };
 
   const renderContent = () => {
-   switch(activeTab) {
-      case 'Contact':
-         return (
-            <View style={[ {backgroundColor: currentTheme.background}]}>
-               {place.program && (
-                  <>
-                     <Tiles title={"Program: " + place.program} icon={'schedule'} />
-                     <HeightSpacer height={10} />
-                  </>
-               )}
-
-            {place.phone && (
-               <>
-                  <View style={reusable.rowWithSpace('space-between')}>
-                     <View style={reusable.rowWithSpace('flex-start')}>
-                              <Tiles title={"Phone number: "} icon={'phone'}/>
-                              <TouchableOpacity onPress={handleCallPress}>
-                                 <ReusableText
-                                    text={place.phone}
-                                    family={''}
-                                    size={TEXT.medium}
-                                    color={currentTheme.phone}
-                                 />
-                              </TouchableOpacity>
-                     </View>
-                  </View>
-                  <HeightSpacer height={10} />
-               </>
-            )}
-
-               {place.price && (
-                  <>
-                     <Tiles title={"Ticket price: " + place.price} icon={'info-outline'}/>
-                     <HeightSpacer height={10} />
-                  </>
-               )}
-
-               {place.adress && (
-                    <>
-                        <View style={reusable.rowWithSpace('space-between')}>
-                            <View style={reusable.rowWithSpace('flex-start')}>
-                                    <Tiles title={"Address: "} icon={'near-me'}/>
-                                    <TouchableOpacity onPress={openGoogleMaps}>
-                                        <ReusableText
-                                            text={place.adress}
-                                            family={''}
-                                            size={TEXT.medium}
-                                            color={currentTheme.phone}
-                                        />
-                                    </TouchableOpacity>
-                            </View>
-                        </View>
+      switch(activeTab) {
+         case 'Contact':
+            return (
+               <View style={[ {backgroundColor: currentTheme.background}]}>
+                  {place.program && (
+                     <>
+                        <Tiles title={"Program: " + place.program} icon={'schedule'} />
                         <HeightSpacer height={10} />
-                    </>
+                     </>
+                  )}
+
+               {place.phone && (
+                  <>
+                     <View style={reusable.rowWithSpace('space-between')}>
+                        <View style={reusable.rowWithSpace('flex-start')}>
+                                 <Tiles title={"Phone number: "} icon={'phone'}/>
+                                 <TouchableOpacity onPress={handleCallPress}>
+                                    <ReusableText
+                                       text={place.phone}
+                                       family={''}
+                                       size={TEXT.medium}
+                                       color={currentTheme.phone}
+                                    />
+                                 </TouchableOpacity>
+                        </View>
+                     </View>
+                     <HeightSpacer height={10} />
+                  </>
                )}
 
+                  {place.price && (
+                     <>
+                        <Tiles title={"Ticket price: " + place.price} icon={'info-outline'}/>
+                        <HeightSpacer height={10} />
+                     </>
+                  )}
 
-               <HeightSpacer height={25}/>
+                  {place.adress && (
+                     <>
+                           <View style={reusable.rowWithSpace('space-between')}>
+                              <View style={reusable.rowWithSpace('flex-start')}>
+                                       <Tiles title={"Address: "} icon={'near-me'}/>
+                                       <TouchableOpacity onPress={openGoogleMaps}>
+                                          <ReusableText
+                                             text={place.adress}
+                                             family={''}
+                                             size={TEXT.medium}
+                                             color={currentTheme.phone}
+                                          />
+                                       </TouchableOpacity>
+                              </View>
+                           </View>
+                           <HeightSpacer height={10} />
+                     </>
+                  )}
 
-               <View>
-               <MapView style={styles.map} region={mapRegion}>
-                  <Marker coordinate={mapRegion} title={place.title}/>
-                  <Marker coordinate={mapMyRegion} title="My Location"/>
-               </MapView>
 
-               <TouchableOpacity style={styles.directionsButton} onPress={openGoogleMaps}>
-                     <MaterialIcons name="directions" size={34} color="white" />
-               </TouchableOpacity>
+                  <HeightSpacer height={25}/>
+
+                  <View>
+                  <MapView style={styles.map} region={mapRegion}>
+                     <Marker coordinate={mapRegion} title={place.title}/>
+                     <Marker coordinate={mapMyRegion} title="My Location"/>
+                  </MapView>
+
+                  <TouchableOpacity style={styles.directionsButton} onPress={openGoogleMaps}>
+                        <MaterialIcons name="directions" size={34} color="white" />
+                  </TouchableOpacity>
+
+                  </View>
+
+                     <HeightSpacer height={40}/>
 
                </View>
+            )
+         case 'History':
+            return <DescriptionText text={place.description} color={currentTheme.color} size={TEXT.medium}/>
+         case 'Rating':
+            return (
+               <View style={[ {backgroundColor: currentTheme.background}]}>
+                  <View style={reusable.rowWithSpace('space-between')}>
+                     <View style={reusable.rowWithSpace('flex-start')}>
+                        <ReusableText
+                              text={'Reviews'}
+                              family={'semibold'}
+                              size={TEXT.medium}
+                              color={currentTheme.color}
+                        />
 
-                  <HeightSpacer height={40}/>
+                        <WidthSpacer width={130} />
+                        <View style={styles.modalContainer}>
+                              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                                 <Tiles title={"Write a review"} icon={'note-alt'} />
+                              </TouchableOpacity>
+                                 <Modal
+                                    animationType="slide"
+                                    transparent={true}
+                                    visible={modalVisible}
+                                    onRequestClose={() => {
+                                          setModalVisible(!modalVisible);
+                                    }}>
+                                    <View style={styles.modalBackground}>
+                                          <View style={[styles.modalView, {backgroundColor: currentTheme.background}]}>
+                                             <View style={styles.modalCenter}>
+                                                <ReusableText
+                                                      text={'Reviews'}
+                                                      family={'semibold'}
+                                                      size={TEXT.medium}
+                                                      color={currentTheme.color}
+                                                />
 
-            </View>
-         )
-      case 'History':
-         return <DescriptionText text={place.description} color={currentTheme.color} size={TEXT.medium}/>
-      case 'Rating':
-         return (
-            <View style={[ {backgroundColor: currentTheme.background}]}>
-               <View style={reusable.rowWithSpace('space-between')}>
-                  <View style={reusable.rowWithSpace('flex-start')}>
-                     <ReusableText
-                           text={'Reviews'}
-                           family={'semibold'}
-                           size={TEXT.medium}
-                           color={currentTheme.color}
-                     />
+                                                <View style={styles.starsContainer}>
+                                                   {[1, 2, 3, 4, 5].map(star => (
+                                                      <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
+                                                         <MaterialIcons
+                                                            name={star <= rating ? 'star' : 'star-outline'}
+                                                            size={40}
+                                                            color={COLORS.yellow}
+                                                         />
+                                                      </TouchableOpacity>
+                                                   ))}
+                                                </View>
+                                             </View>
 
-                     <WidthSpacer width={130} />
-                     <View style={styles.modalContainer}>
-                           <TouchableOpacity onPress={() => setModalVisible(true)}>
-                              <Tiles title={"Write a review"} icon={'note-alt'} />
-                           </TouchableOpacity>
-                              <Modal
-                                 animationType="slide"
-                                 transparent={true}
-                                 visible={modalVisible}
-                                 onRequestClose={() => {
-                                       setModalVisible(!modalVisible);
-                                 }}>
-                                 <View style={styles.modalBackground}>
-                                       <View style={[styles.modalView, {backgroundColor: currentTheme.background}]}>
-                                          <View style={styles.modalCenter}>
                                              <ReusableText
-                                                   text={'Reviews'}
+                                                   text={'Add your comment:'}
                                                    family={'semibold'}
-                                                   size={TEXT.medium}
+                                                   size={TEXT.small}
                                                    color={currentTheme.color}
                                              />
 
-                                             <View style={styles.starsContainer}>
-                                                {[1, 2, 3, 4, 5].map(star => (
-                                                   <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
-                                                      <MaterialIcons
-                                                         name={star <= rating ? 'star' : 'star-outline'}
-                                                         size={40}
-                                                         color={COLORS.yellow}
-                                                      />
-                                                   </TouchableOpacity>
-                                                ))}
-                                             </View>
-                                          </View>
+                                             <HeightSpacer height={10}/>
+         
+                                         
 
-                                          <ReusableText
-                                                text={'Add your comment:'}
-                                                family={'semibold'}
-                                                size={TEXT.small}
+                                             <TextInput                     
+                                                placeholder='Enter your review comment'
+                                                placeholderTextColor={currentTheme.color}
+                                                autoCorrect={false}
+                                                style={styles.input}
+                                                multiline={true}
+                                                returnKeyType='done'
+                                                backgroundColor={currentTheme.background}
                                                 color={currentTheme.color}
-                                          />
+                                                value={review}
+                                                onChangeText={text => setReview(text)}
+                                             />
 
-                                          <HeightSpacer height={10}/>
-      
-                                          <TextInput
-                                             label="Enter your review comment"
-                                             value={review}
-                                             onChangeText={text => setReview(text)}
-                                             mode="outlined"
-                                             multiline={true}
-                                             style={[styles.input, { backgroundColor: currentTheme.background }]}
-                                             theme={{ colors: { placeholder: currentTheme.color, text: currentTheme.color, primary: currentTheme.color, underlineColor: 'transparent', background: currentTheme.background } }}
-                                          />
+                                             <HeightSpacer height={25}/>
 
-                                          <HeightSpacer height={25}/>
+                                             <View style={reusable.rowWithSpace('space-between')}>
+                                                <View style={reusable.rowWithSpace('flex-start')}>
 
-                                          <View style={reusable.rowWithSpace('space-between')}>
-                                             <View style={reusable.rowWithSpace('flex-start')}>
+                                                   <TouchableOpacity style={styles.deleteButton} onPress={() => handleSubmit()}>
+                                                         <Text style={styles.buttonTextDelete}>Submit</Text>
+                                                   </TouchableOpacity>
 
-                                                <TouchableOpacity style={styles.deleteButton} onPress={() => handleSubmit()}>
-                                                      <Text style={styles.buttonTextDelete}>Submit</Text>
-                                                </TouchableOpacity>
+                                                   <WidthSpacer width={35}/>
 
-                                                <WidthSpacer width={35}/>
-
-                                                <TouchableOpacity style={styles.buttonCancel} onPress={()=> handleModalClose()}>
-                                                      <Text style={styles.buttonTextCancel}>Cancel</Text>
-                                                </TouchableOpacity>
+                                                   <TouchableOpacity style={styles.buttonCancel} onPress={()=> handleModalClose()}>
+                                                         <Text style={styles.buttonTextCancel}>Cancel</Text>
+                                                   </TouchableOpacity>
+                                                </View>
                                              </View>
                                           </View>
-                                       </View>
-                                 </View>
-                              </Modal>
+                                    </View>
+                                 </Modal>
 
-                           
+                              
+                        </View>
                      </View>
                   </View>
-               </View>
-               <HeightSpacer height={10}/>
-               <View style={[styles.reviewContainer, {backgroundColor: currentTheme.background}]}> 
-                  {place.reviews.length > 0 ? (
-                     place.reviews.map((review, index) => (
-                        <View key={index} style={styles.reviewItem}>
-                           <View style={styles.reviewHeader}>
-                              <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
-                              <View style={styles.starsContainer}>
-                                 {renderStars(review.rating)}
+                  <HeightSpacer height={10}/>
+                  <View style={[styles.reviewContainer, {backgroundColor: currentTheme.background}]}> 
+                     {place.reviews.length > 0 ? (
+                        place.reviews.map((review, index) => (
+                           <View key={index} style={styles.reviewItem}>
+                              <View style={styles.reviewHeader}>
+                                 <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
+                                 <View style={styles.starsContainer}>
+                                    {renderStars(review.rating)}
+                                 </View>
                               </View>
+                              <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
                            </View>
-                           <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
-                        </View>
-                     ))
-                  ) : (
-                     <Text style={[styles.noReviews, {color: currentTheme.color}]}>No reviews yet.</Text>
-                  )}
+                        ))
+                     ) : (
+                        <Text style={[styles.noReviews, {color: currentTheme.color}]}>No reviews yet.</Text>
+                     )}
+                  </View>
+                  
                </View>
-               
-            </View>
-           
-         )
-      default:
-         return null;
-   }
+            
+            )
+         default:
+            return null;
+      }
 };
 
   return (
@@ -637,9 +641,15 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       marginVertical: 20,
   },
-   input: {
-      height: 130,
-      textAlignVertical: 'top',
+  input: {
+      borderWidth: 1,
+      borderRadius: 9,
+      borderColor: COLORS.grey,
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      fontSize: SIZES.medium,
+      marginBottom: 10,
+      height: 120
    },
    deleteButton: {
       flexDirection: 'row',

@@ -79,13 +79,7 @@ const Hotels = () => {
          <View style={{marginHorizontal: 20}}>
             
             <ScrollView horizontal={true} style={styles.scrollView} contentContainerStyle={styles.scrollViewContent} showsHorizontalScrollIndicator={false}>
-                <TouchableOpacity style={[styles.button, {backgroundColor: currentTheme.backgroundSelectedButton}]}>
-                    <View style={reusable.rowWithSpace('flex-start')}>
-                        <MaterialIcons name={'sort'}/>
-                        <WidthSpacer width={5}/>
-                        <Text style={[styles.text,  {color: currentTheme.textSelectedButton}]}>Sort</Text>
-                    </View>
-                </TouchableOpacity>
+                
                 <TouchableOpacity style={[styles.button, {backgroundColor: currentTheme.backgroundSelectedButton}]} onPress={handleActionSheet}>
                     <View style={reusable.rowWithSpace('flex-start')}>
                         <MaterialIcons name={'tune'}/>
@@ -105,7 +99,7 @@ const Hotels = () => {
                     item.isEmpty ? (
                         <View style={styles.emptyCard}></View>
                     ) : (
-                        <TouchableOpacity style={[styles.hotelContainer, { backgroundColor: currentTheme.backgroundTiles}]} onPress={() => navigation.navigate('HotelDetails', {itemId: item._id})}>
+                        <TouchableOpacity style={[styles.hotelContainer, { backgroundColor: currentTheme.backgroundTiles}]} onPress={() => navigation.navigate('HotelDetails', item._id)}>
                             <View style={{alignItems: 'center',}}>
                                 <View style={{ position: 'relative'}}>
                                     <NetworkImage source={item.imageUrls[0]} width={140} height={120} radius={12}/>

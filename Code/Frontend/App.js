@@ -85,9 +85,7 @@ const onLayoutRootView = useCallback(async () => {
                   headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader } 
               })} />
 
-              <Stack.Screen name='TouristAttraction' component={TouristAttraction} options={{ headerShown: true, headerBackTitle: 'Back', title: 'Tourist Attraction', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader },  
-              headerTitleStyle: {
-              fontWeight: 'bold'} }} />
+              <Stack.Screen name='TouristAttraction' component={TouristAttraction} options={{ headerShown: true, headerBackTitle: 'Back', title: 'Tourist Attraction', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader },  headerTitleStyle: {fontWeight: 'bold'} }} />
               <Stack.Screen name='PlaceDetails' component={PlaceDetails} options={{ headerShown: false }} />
               <Stack.Screen name='Favorites' component={Favorites} options={{ headerShown: true, headerBackTitle: 'Back', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader }, headerTitleStyle: {fontWeight: 'bold'} }} />
               <Stack.Screen name='Hotels' component={Hotels} options={{ headerShown: true, headerBackTitle: 'Back', title: 'Accommodation', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader }, headerTitleStyle: {fontWeight: 'bold'} }} />

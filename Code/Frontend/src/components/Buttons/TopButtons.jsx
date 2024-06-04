@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import themeContext from '../../constants/themeContext';
 import themeDark from '../../constants/themeDark';
-import { color } from 'react-native-elements/dist/helpers';
 
 const TopButtons = ({ activeTab, setActiveTab }) => {
     const userTheme = useContext(themeContext);

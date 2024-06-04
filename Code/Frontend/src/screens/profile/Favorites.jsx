@@ -5,7 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../../constants/theme';
 import themeDark from '../../constants/themeDark';
 import themeContext from '../../constants/themeContext';
-import { Button } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons'
 import { Alert } from 'react-native';
 

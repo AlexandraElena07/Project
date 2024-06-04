@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import YoutubePlayer from 'react-native-youtube-iframe'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { Alert } from 'react-native';
 
 const AboutCounty = () => {
    const navigation = useNavigation();

@@ -68,6 +68,7 @@ useEffect(() => {
       const token = await AsyncStorage.getItem('token');
 
       if (!token) {
+        console.log('User not authenticated');
         return; 
       }
 
@@ -83,37 +84,38 @@ useEffect(() => {
     }
   };
  
-  const handleAddToFavorites = async (itemId, itemType) => {
+  const handleAddToFavorites = async (itemId, itemType, countyId) => {
     try {
       const token = await AsyncStorage.getItem('token');
       const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
-  
+ 
       if (!token) {
-        Alert.alert('Error', 'You need to be logged in to add to favorite list.');
-        return;
-      }
-    
-      const authResponse = await axios.get('http://10.9.31.61:5003/api/check', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-      });
-
+       Alert.alert('Error', 'You need to be logged in to add to favorite list.');
+       return;
+   }
+ 
+    const authResponse = await axios.get('http://10.9.31.61:5003/api/check', {
+          headers: {
+             Authorization: `Bearer ${token}`
+          }
+    });
+ 
       const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
-        userId: authResponse.data.userId,
-        itemId: item._id,
-        itemType
+        userId: authResponse.data.userId, 
+        itemId,
+        itemType,
+        countyId: countyId
       }, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-  
-      if (response.status === 200) {
-        setIsFavorite(!isFavorite); 
-      } else {
-        Alert.alert('Error', 'Failed to update favorite status.');
-      }
+ 
+     if (response.status === 200) {
+       setIsFavorite(!isFavorite);
+     } else {
+       Alert.alert('Error', 'Failed to update favorite status.');
+     }
     } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     }

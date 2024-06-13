@@ -63,7 +63,7 @@ const onLayoutRootView = useCallback(async () => {
               <Stack.Screen name='Onboard' component={Onboarding} options={{ headerShown: false }} />
               <Stack.Screen name='Bottom' component={BottomTabNavigation} options={{ headerShown: false }} />
               <Stack.Screen name='Search' component={Search} options={{ headerShown: false }} />
-              <Stack.Screen name='ProfileImage' component={ProfileImage} options={{ headerShown: false}} />
+              <Stack.Screen name='ProfileImage' component={ProfileImage} options={{ headerShown: true, headerBackTitle: 'Back', title: '', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader } }} />
               <Stack.Screen name='UpdateProfile' component={UpdateProfile} options={{ headerShown: true, headerBackTitle: 'Back', title: 'Update Profile', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader } }} />
               <Stack.Screen name='Contact' component={Contact} options={{ headerShown: true, headerBackTitle: 'Back', title: 'Contact Us', headerTintColor: userTheme === 'dark' ? themeDark.dark.background : themeDark.light.background, headerStyle: { backgroundColor: themeDark === 'dark' ? themeDark.dark.backgroundHeader : themeDark.light.backgroundHeader } }} />
               <Stack.Screen 

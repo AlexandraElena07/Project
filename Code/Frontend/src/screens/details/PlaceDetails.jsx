@@ -96,6 +96,7 @@ const PlaceDetails = () => {
    }
 
    const [ userId, setUserId ] = useState();
+   const [ profileImage, setProfileImage ] = useState();
    const getUser = async () => {
       try {
           const token = await AsyncStorage.getItem('token');
@@ -111,6 +112,7 @@ const PlaceDetails = () => {
               }
           });
           setUserId(response.data.id);
+          setProfileImage(response.data.profile);
   
       } catch (error) {
           console.error('Error fetching user ID:', error);
@@ -164,6 +166,7 @@ const handleSubmit = async () => {
 
        const response = await axios.post(`http://10.9.31.61:5003/api/places/addReview/${id}`, {
            username: authResponse.data.username,
+           profile: profileImage,
            rating,
            reviewText: review
        }, {
@@ -214,70 +217,82 @@ const handleShare = async () => {
    }
  };
 
- const checkIfFavorite = async () => {
-   try {
-     const token = await AsyncStorage.getItem('token');
-     
-     if (!token) {
-       return; 
-     }
-
-     const response = await axios.get('http://10.9.31.61:5003/api/users/favorites', {
-       headers: {
-         Authorization: `Bearer ${token}`
-       }
-     });
-
-     const isFav = response.data.favorites.some(fav => fav._id === id && fav.type === 'Place');
-     setIsFavorite(isFav);
-   } catch (error) {
-     console.error('Error checking favorite status:', error);
-     Alert.alert('Error', 'Failed to check favorite status. Please try again later.');
-   }
+ const formatDate = (dateString) => {
+   if (!dateString) return ''; 
+   const date = new Date(dateString);
+   return date.toLocaleDateString(undefined, {
+       day: '2-digit',
+       month: 'long',
+       year: 'numeric'
+   });
 };
 
+const checkIfFavorite = async () => {
+        try {
+          const token = await AsyncStorage.getItem('token');
+          
+          if (!token) {
+            console.log('User not authenticated');
+            return; 
+          }
+     
+          const response = await axios.get('http://10.9.31.61:5003/api/users/favorites', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+     
+          const isFav = response.data.favorites.some(fav => fav._id === id && fav.type === 'Place');
+          setIsFavorite(isFav);
+        } catch (error) {
+          console.error('Error checking favorite status:', error);
+        }
+     };
 
- const handleAddToFavorites = async (itemId, itemType) => {
-   try {
-     const token = await AsyncStorage.getItem('token');
-     const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
 
-     if (!token) {
-      Alert.alert('Error', 'You need to be logged in to add to favorite list.');
-      return;
-  }
-
-   const authResponse = await axios.get('http://10.9.31.61:5003/api/check', {
-         headers: {
+     const handleAddToFavorites = async (itemId, itemType, countyId) => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
+   
+        if (!token) {
+         Alert.alert('Error', 'You need to be logged in to add to favorite list.');
+         return;
+     }
+   
+      const authResponse = await axios.get('http://10.9.31.61:5003/api/check', {
+            headers: {
+               Authorization: `Bearer ${token}`
+            }
+      });
+   
+        const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
+          userId: authResponse.data.userId, 
+          itemId,
+          itemType,
+          countyId: countyId
+        }, {
+          headers: {
             Authorization: `Bearer ${token}`
-         }
-   });
-
-     const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
-       userId: authResponse.data.userId, 
-       itemId,
-       itemType
-     }, {
-       headers: {
-         Authorization: `Bearer ${token}`
+          }
+        });
+   
+       if (response.status === 200) {
+         setIsFavorite(!isFavorite);
+       } else {
+         Alert.alert('Error', 'Failed to update favorite status.');
        }
-     });
-
-    if (response.status === 200) {
-      setIsFavorite(!isFavorite);
-    } else {
-      Alert.alert('Error', 'Failed to update favorite status.');
-    }
-   } catch (error) {
-     Alert.alert('Error', 'Something went wrong. Please try again.');
-   }
- };
+      } catch (error) {
+        Alert.alert('Error', 'Something went wrong. Please try again.');
+      }
+    };
 
   const renderContent = () => {
       switch(activeTab) {
          case 'Contact':
             return (
-               <View style={[ {backgroundColor: currentTheme.background}]}>
+            <View style={[ {backgroundColor: currentTheme.background}]}>
+               
                   {place.program && (
                      <>
                         <Tiles title={"Program: " + place.program} icon={'schedule'} />
@@ -310,9 +325,10 @@ const handleShare = async () => {
                         <HeightSpacer height={10} />
                      </>
                   )}
-
+                  
                   {place.adress && (
                      <>
+                     <View style={styles.content}>
                            <View style={reusable.rowWithSpace('space-between')}>
                               <View style={reusable.rowWithSpace('flex-start')}>
                                        <Tiles title={"Address: "} icon={'near-me'}/>
@@ -327,10 +343,11 @@ const handleShare = async () => {
                               </View>
                            </View>
                            <HeightSpacer height={10} />
+                           </View>
                      </>
                   )}
 
-
+                  
                   <HeightSpacer height={25}/>
 
                   <View>
@@ -452,12 +469,23 @@ const handleShare = async () => {
                         place.reviews.map((review, index) => (
                            <View key={index} style={styles.reviewItem}>
                               <View style={styles.reviewHeader}>
-                                 <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
+                                 <View style={{flexDirection: 'row'}}>
+                                    <View style={styles.profileAvatarWrapper}>
+                                          <Image
+                                             alt="Profile picture"
+                                             source={{ uri: review.profile }}
+                                             style={styles.profileAvatarDelete}
+                                          />
+                                    </View>
+                                    <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
+                                 </View>
+                                 
                                  <View style={styles.starsContainer}>
                                     {renderStars(review.rating)}
                                  </View>
                               </View>
                               <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
+                              <Text style={[styles.reviewDate, {color: currentTheme.color}]}>{formatDate(review.date)}</Text>
                            </View>
                         ))
                      ) : (
@@ -562,7 +590,7 @@ const handleShare = async () => {
 
                <View style={[ styles.contentContainer, {backgroundColor: currentTheme.background}]}>
                   {renderContent()}
-                  <HeightSpacer height={200}/>
+                  <HeightSpacer height={275}/>
                </View>
             </View>
            </View>
@@ -591,6 +619,10 @@ const styles = StyleSheet.create({
   contentContainer: {
       flex: 1,
       padding: 10,
+  },
+  content: {
+      flex: 1,
+      marginRight: 150
   },
   map: {
       width: SIZES.width-50,
@@ -699,6 +731,8 @@ const styles = StyleSheet.create({
    },
    reviewUsername: {
       fontWeight: 'bold',
+      marginLeft: 5,
+      marginTop: 5
    },
    starsContainer: {
       flexDirection: 'row',
@@ -706,10 +740,24 @@ const styles = StyleSheet.create({
    reviewText: {
       marginTop: 5,
    },
+   reviewDate: {
+      marginTop: 5,
+      textAlign: 'right'
+   },
    noReviews: {
       textAlign: 'center',
       marginTop: 10,
       color: COLORS.grey,
    },
+   profileAvatarWrapper: {
+      position: 'relative',
+  },
+  profileAvatarDelete: {
+      width: 30,
+      height: 30,
+      borderRadius: 9999,
+      borderWidth: 2,
+      borderColor: COLORS.white
+    },
 })
 

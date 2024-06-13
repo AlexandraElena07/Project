@@ -8,6 +8,7 @@ import * as MailComposer from 'expo-mail-composer';
 import axios from 'axios';
 import themeContext from '../../constants/themeContext';
 import themeDark from '../../constants/themeDark';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Contact = () => {
 
@@ -51,14 +52,20 @@ const Contact = () => {
         }
         
         try {
-            const response = await axios.post('http://10.9.31.61:5003/api/newcontact', formData);
+            const token = await AsyncStorage.getItem('token');
             
+            const response = await axios.post('http://10.9.31.61:5003/api/newcontact', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
             if (response.status === 201) {
                 console.log('Feedback trimis cu succes!');
                 Alert.alert('Success', 'Feedback sent successfully');
                 setFeedback(''); 
             } else {
-                console.error('Eroare la trimiterea feedback-ului:', response.data.message);
+                console.error('Eroare la trimiterea feedback-ului:', error.response?.data || error.message);
                 Alert.alert('Error', 'Failed to send feedback: ' + response.data.message);
             }
     

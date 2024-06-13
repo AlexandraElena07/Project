@@ -1,6 +1,7 @@
 const Event = require("../models/Event");
 const EventCounty = require("../models/EventCounty")
-
+const County = require('../models/County')
+ 
 module.exports = {
     addEvent: async (req, res, next) => {
         const {county_id, county_name, title, imageUrl, start_date, end_date, events, exhibitions} = req.body;
@@ -19,6 +20,16 @@ module.exports = {
             });
 
             await newEvent.save();
+
+            // Adăugarea ID-ului locației în array-ul de atracții al județului corespunzător
+            const county = await County.findById(county_id);
+            if (county) {
+                county.event.push(newEvent._id);  // Adaugă ID-ul locației la atracții
+                await county.save();
+            } else {
+                // Județul nu a fost găsit
+                return res.status(404).json({status: false, message: "County not found"});
+            }    
 
             res.status(201).json({status: true})
             
@@ -67,26 +78,6 @@ module.exports = {
         } catch(error) {
             return next(error)
         }
-    },
-
-    getEventCountyByEvent: async (req, res, next) => {
-        const eventId = req.params.id; 
-    
-        try {
-            const event = await EventCounty.find({event_id: eventId}, {createdAt:0, updatedAt: 0, _v: 0})
-
-    
-            if (!event) {
-                return res.status(404).json({ message: "Event not found" });
-            }
-    
-            console.log("Event Counties for the event:", event);
-            res.status(200).json(event.events);
-        } catch (error) {
-            console.error('Error fetching Event Counties:', error);
-            return res.status(500).json({ message: "Server error" });
-        }
-    }
-    
+    },    
     
 }

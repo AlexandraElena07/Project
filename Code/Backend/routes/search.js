@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Place = require('../models/Places'); // Verifică dacă calea este corectă
-const Hotel = require('../models/Hotel'); // Verifică dacă calea este corectă
+const Place = require('../models/Places'); 
+const Hotel = require('../models/Hotel'); 
 
 router.get('/', async (req, res) => {
     const { query, type } = req.query;

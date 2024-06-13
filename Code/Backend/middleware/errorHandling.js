@@ -3,3 +3,4 @@ const errorHandler = (req, res, next, error) => {
 }
 
 module.exports = errorHandler
+

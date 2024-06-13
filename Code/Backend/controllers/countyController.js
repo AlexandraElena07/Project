@@ -5,7 +5,6 @@ module.exports = {
         const {county, description, imageUrl, videoId, attraction, hotel, event} = req.body;
 
         try {
-
             const newCounty = new County({
                 county,
                 description,
@@ -19,7 +18,6 @@ module.exports = {
             await newCounty.save();
 
             res.status(201).json({status: true})
-            
         } catch (error) {
             return next(error)
         }
@@ -90,7 +88,7 @@ module.exports = {
             }
 
             const index = county.event.indexOf(eventId);
-
+            
             if(index !== -1) {
                 county.event.splice(index, 1)
             } else {
@@ -103,12 +101,10 @@ module.exports = {
         } catch (error) {
             return next(error)
         }
- 
     },
     
     getCounties: async (req, res, next) => {
-        try {
-            
+        try {     
             const counties = await County.find({},{county: 1, _id:1, imageUrl: 1, description: 1, videoId: 1})
 
             res.status(200).json({counties})
@@ -119,7 +115,6 @@ module.exports = {
 
     getCounty: async (req, res, next) => {
         const countyId = req.params.id;
-
         try {
             const county = await County.findById(countyId, {createdAt: 0, updatedAt: 0, _v: 0})
             .populate({
@@ -129,6 +124,10 @@ module.exports = {
             .populate({
                 path:'hotel',
                 select: 'imageUrls location title category latitude mail program phone adress website bookingsite reviews'
+            })
+            .populate({
+                path:'event',
+                select: 'title start_date end_date'
             });
 
             res.status(200).json(county)

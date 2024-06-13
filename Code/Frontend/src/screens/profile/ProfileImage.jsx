@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Image, View } from 'react-native';
 import styles from './profileAfter'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import themeContext from '../../constants/themeContext';
+import themeDark from '../../constants/themeDark';
 
 const picture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs6SXBiscMksrAbCit__F5GntSP9nC3p0_eg&usqp=CAU';
 
 const ProfileImage = () => {
     const [profile, setProfile] = useState('');
+    const userTheme = useContext(themeContext);
+    const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
 
     const getDataFromDatabase = async () => {
         try {
@@ -30,7 +34,7 @@ const ProfileImage = () => {
     }, []);
 
     return (
-            <View>
+            <View style={{ flex: 1, backgroundColor: currentTheme.background }}>
                 <Image source={{ uri: profile ? profile : picture}} style={styles.enlargedImage}/>
             </View>
     );

@@ -59,11 +59,17 @@ const Home = () => {
   
      };
 
-   useEffect(() => {
-      getDataFromDatabase();
-      getRecommandation();
-      getBestHotels();
-  }, []);
+     useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+          // Reîncarcă datele atunci când utilizatorul navighează înapoi la acest ecran
+          getDataFromDatabase();
+          getRecommandation();
+          getBestHotels();
+        });
+      
+        return unsubscribe;
+      }, [navigation]);
+      
 
    return (
       <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background }}>

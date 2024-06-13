@@ -1,16 +1,21 @@
 const mongoose = require("mongoose");
 
 const favoriteSchema = new mongoose.Schema({
-    _id: {
+  _id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-    },
-    type: {
+  },
+  type: {
       type: String,
       required: true,
       enum: ['Place', 'County', 'Hotel'],
-    }
-  });
+  },
+  countyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'County', // Referință la schema County
+      required: true,
+  }
+});
 
 const UserSchema = new mongoose.Schema({
     username: {type: String, required: true, unique: true}, 
@@ -23,4 +28,4 @@ const UserSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("User", UserSchema);
- 
+

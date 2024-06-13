@@ -146,9 +146,9 @@ const styles = StyleSheet.create({
       fontFamily: 'medium'
     },
     enlargedImage: {
-      resizeMode: "contain",
+      resizeMode: "center",
       width: SIZES.width,
-      height: SIZES.height
+      height: SIZES.height/1.2,
     } 
 })
 

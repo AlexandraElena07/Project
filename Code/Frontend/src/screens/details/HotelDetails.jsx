@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, View, Text, Linking, TouchableOpacity, StyleSheet, Modal, Alert, Share, TextInput } from 'react-native';
+import { SafeAreaView, ScrollView, View, Text, Image, Linking, TouchableOpacity, StyleSheet, Modal, Alert, Share, TextInput } from 'react-native';
 import themeContext from '../../constants/themeContext';
 import themeDark from '../../constants/themeDark';
 import { BottomButtons, HeightSpacer, ImageCarousel, ReusableText, Tiles, TopBarHotel, WidthSpacer } from '../../components';
@@ -48,11 +48,14 @@ const HotelDetails = () => {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
+    const [countyId, setCountyId] = useState();
     const getDataFromDatabase = async () => {
       try {
           
           const response = await axios.get(`http://10.9.31.61:5003/api/hotels/${id}`);
           const hotelData = response.data.hotel;
+
+          setCountyId(hotelData.county_id);
           setHotels(hotelData);
 
           navigation.setOptions({
@@ -135,6 +138,7 @@ const HotelDetails = () => {
     }
 
     const [ userId, setUserId ] = useState();
+    const [ profileImage, setProfileImage ] = useState();
     const getUser = async () => {
        try {
            const token = await AsyncStorage.getItem('token');
@@ -150,6 +154,7 @@ const HotelDetails = () => {
                }
            });
            setUserId(response.data.id);
+           setProfileImage(response.data.profile);
    
        } catch (error) {
            console.error('Error fetching user ID:', error);
@@ -208,6 +213,7 @@ const HotelDetails = () => {
      
             const response = await axios.post(`http://10.9.31.61:5003/api/hotels/addReview/${id}`, {
                 username: authResponse.data.username,
+                profile: profileImage,
                 rating,
                 reviewText: review
             }, {
@@ -255,7 +261,7 @@ const HotelDetails = () => {
      };
      
      
-     const handleAddToFavorites = async (itemId, itemType) => {
+     const handleAddToFavorites = async (itemId, itemType, countyId) => {
         try {
           const token = await AsyncStorage.getItem('token');
           const endpoint = isFavorite ? 'removeFromFavorites' : 'addToFavorites';
@@ -274,7 +280,8 @@ const HotelDetails = () => {
           const response = await axios.post(`http://10.9.31.61:5003/api/users/${endpoint}`, {
             userId: authResponse.data.userId, 
             itemId,
-            itemType
+            itemType,
+            countyId: countyId
           }, {
             headers: {
               Authorization: `Bearer ${token}`
@@ -301,6 +308,18 @@ const HotelDetails = () => {
         alert(error.message);
     }
     };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return ''; 
+        const date = new Date(dateString);
+        return date.toLocaleDateString(undefined, {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+    
+    
     
     const renderContent = () => {
         switch(activeTab) {
@@ -569,12 +588,23 @@ const HotelDetails = () => {
                                 hotel.reviews.map((review, index) => (
                                     <View key={index} style={styles.reviewItem}>
                                         <View style={styles.reviewHeader}>
-                                            <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
+                                            <View style={{flexDirection: 'row'}}>
+                                                <View style={styles.profileAvatarWrapper}>
+                                                    <Image
+                                                        alt="Profile picture"
+                                                        source={{ uri: review.profile }}
+                                                        style={styles.profileAvatarDelete}
+                                                    />
+                                                </View>
+                                                <Text style={[styles.reviewUsername, {color: currentTheme.color}]}>{review.username}</Text>
+                                            </View>
+                                            
                                             <View style={styles.starsContainer}>
                                                 {renderStars(review.rating)}
                                             </View>
                                         </View>
                                         <Text style={[styles.reviewText, {color: currentTheme.color}]}>{review.reviewText}</Text>
+                                        <Text style={[styles.reviewDate, {color: currentTheme.color}]}>{formatDate(review.date)}</Text>
                                     </View>
                                 ))
                             ) : (
@@ -725,6 +755,8 @@ const styles = StyleSheet.create({
      },
      reviewUsername: {
         fontWeight: 'bold',
+        marginLeft: 5,
+        marginTop: 5
      },
      starsContainer: {
         flexDirection: 'row',
@@ -732,9 +764,23 @@ const styles = StyleSheet.create({
      reviewText: {
         marginTop: 5,
      },
+     reviewDate: {
+        marginTop: 5,
+        textAlign: 'right'
+     },
      noReviews: {
         textAlign: 'center',
         marginTop: 10,
         color: COLORS.grey,
      },
+     profileAvatarWrapper: {
+        position: 'relative',
+    },
+    profileAvatarDelete: {
+        width: 30,
+        height: 30,
+        borderRadius: 9999,
+        borderWidth: 2,
+        borderColor: COLORS.white
+      },
 })

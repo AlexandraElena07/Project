@@ -24,61 +24,7 @@ const UpdateProfile = () => {
     const userTheme = useContext(themeContext);
     const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
 
-    let result = {};
-
-    const takePhoto = async () => {
-        try {
-            await ImagePicker.requestCameraPermissionsAsync();
-            result = await ImagePicker.launchCameraAsync({
-                cameraType: ImagePicker.CameraType.front,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-            });
-
-            if(!result.canceled){
-                await saveImage(result.assets[0].uri);
-            }
-        } catch (error){
-            alert("Error uploading image " + error.message);
-        }
-    }
-
-    const selectImage = async () => {
-        try {
-            await ImagePicker.requestMediaLibraryPermissionsAsync();
-            
-            result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-            });
-
-            if (!result.canceled) {
-                await saveImage(result.assets[0].uri);
-            }
-        } catch (error) {
-            Alert.alert("Error uploading image " + error.message);
-        }
-    };
-
-    const saveImage = async (profile) => {
-        try {
-            setProfile(profile);
-            
-        } catch (error) {
-            throw(error)
-        }
-    }
-
-    const removeImage = async () => {
-        try {
-            saveImage(null);
-        } catch ({message}){
-            Alert.alert(message)
-        }
-    }    
+    //let result = {};
 
     useEffect(() => {
         const responseData = route.params.data;
@@ -87,44 +33,114 @@ const UpdateProfile = () => {
         setProfile(responseData.profile);
     }, [route.params.data])
 
-
-    const updateProfile = async () => {
-        const formData = {
-            username: username,
-            email: email,
-            profile: profile
+    const handleImagePicked = async (pickerResult) => {
+        if (pickerResult.cancelled || !pickerResult.assets) {
+            console.log('No image selected or operation cancelled.');
+            return;
         }
     
-        try {
-            const response = await axios.post('http://10.9.31.61:5003/api/update', formData);
-            
-            if (response.data.status === true) {
-                console.log('Profil actualizat cu succes!');
-                
-                Alert.alert('Success', response.data.message, () => {
-                    setTimeout(async () => {
-                       try {
-                         await Updates.reloadAsync();
-                       } catch (error) {
-                         console.error('Reloading failed:', error.message);
-                       }
-                     }, 2000);
-                  });
-
-            } else {
-                console.error('Eroare la actualizarea profilului:', response.data.message);
-                Alert.alert('Error', 'Failed to update profile');
-            }
+        const imageInfo = pickerResult.assets[0];
+        const localUri = imageInfo.uri;
+        const filename = localUri.split('/').pop();
+        const type = imageInfo.mimeType || 'image/jpeg';
     
-        } catch (error) {
-            if (error.response && error.response.status === 409) {
-                Alert.alert('Error', 'This username already exist.');
+        const formData = new FormData();
+        formData.append('profile', {
+            uri: localUri,
+            name: filename,
+            type: type
+        });
+    
+        formData.append('username', username); 
+        formData.append('email', email);
+    
+        try {
+            const response = await axios.post('http://10.9.31.61:5003/api/update', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+    
+            if (response.data.status) {
+                setProfile(response.data.user.profile);
+                Alert.alert('Success', 'Image uploaded successfully!');
             } else {
-                Alert.alert('Error', 'An error occurred while updating profile.');
+                throw new Error('Failed to upload image');
             }
-        }   
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            Alert.alert('Error', error.message || 'Failed to upload image');
+        }
+    };    
+    
+    
 
-    }
+    const takePhoto = async () => {
+        const permissions = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permissions.granted) {
+            alert('Permission to access camera is required!');
+            return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+        });
+
+        await handleImagePicked(result);
+    };
+
+    const selectImage = async () => {
+        const permissions = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permissions.granted) {
+            alert('Permission to access gallery is required!');
+            return;
+        }
+    
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+        });
+    
+        await handleImagePicked(result);
+        
+    };
+    
+    const removeImage = async () => {
+        try {
+            const response = await axios.post('http://10.9.31.61:5003/api/update', {
+                username,
+                email,
+                profile: PROFILE_PICTURE,
+            });
+    
+            if (response.data.status) {
+                setProfile(PROFILE_PICTURE);
+                Alert.alert('Success', 'Profile picture removed successfully!');
+            } else {
+                throw new Error('Failed to remove profile picture');
+            }
+        } catch (error) {
+            console.error("Error removing profile picture:", error);
+            Alert.alert('Error', error.message || 'Failed to remove profile picture');
+        }
+    };
+    
+      
+    const updateProfile = async () => {
+        try {
+            const formData = { username, email, profile };
+            const response = await axios.post('http://10.9.31.61:5003/api/update', formData);
+            if (response.data.status) {
+                await Updates.reloadAsync(); 
+            } else {
+                throw new Error(response.data.message);
+            }
+        } catch (error) {
+            Alert.alert('Error', error.response?.data?.message || 'An error occurred while updating profile');
+        }
+    };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background }}>

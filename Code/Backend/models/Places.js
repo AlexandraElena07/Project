@@ -1,27 +1,30 @@
 const mongoose = require("mongoose");
 
 const ReviewSchema = new mongoose.Schema({
-    username: {type: String, require: true},
-    rating: {type: Number, require: true},
-    reviewText: {type: String, require: true},
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    username: {type: String, required: true},
+    profile: {type: String},
+    rating: {type: Number, required: true},
+    reviewText: {type: String, required: true},
     date: {type: Date, default: Date.now}
 });
 
 const PlaceSchema = new mongoose.Schema({
-    county_id: {type: String, require: true},
-    description: {type: String, require: true},
+    county_id: { type: mongoose.Schema.Types.ObjectId, ref: 'County', required: true},
+    description: {type: String, required: true},
     imageUrls: { type: [String], required: true },
-    location: {type: String, require: true},
-    title: {type: String, require: true},
-    category: {type: String, require: true},
-    latitude: {type: Number, require: true},
-    longitude: {type: Number, require: true},
-    program: {type: String, require: true},
-    phone: {type: String, require: true},
-    adress: {type: String, require: true},
-    price: {type: String, require: true},
+    location: {type: String, required: true},
+    title: {type: String, required: true},
+    category: {type: String, required: true},
+    latitude: {type: Number, required: true},
+    longitude: {type: Number, required: true},
+    program: {type: String},
+    phone: {type: String},
+    adress: {type: String},
+    price: {type: String}, 
     type: { type: String, required: true, default: 'place' },
     reviews: [ReviewSchema]
 }, {timestamps: true});
+
 
 module.exports = mongoose.model("Place", PlaceSchema);

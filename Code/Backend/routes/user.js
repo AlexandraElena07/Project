@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const { verify } = require("jsonwebtoken");
 const userController = require('../controllers/userController')
 const {verifyToken} = require('../middleware/jwt_token')
 
@@ -10,3 +9,5 @@ router.get('/favorites', verifyToken, userController.getFavorites)
 router.post('/removeFromFavorites', verifyToken, userController.removeFromFavorites)
  
 module.exports = router;
+
+

@@ -167,7 +167,7 @@ const ProfileAfterLogin = () => {
             const response = await axios.post('http://10.9.31.61:5003/api/saveTheme', { username: username, theme: selectedOption });
         
             if (response.data.status) {
-                console.log('Tema a fost salvată cu succes în baza de date.');
+                //console.log('Tema a fost salvată cu succes în baza de date.');
                 await Updates.reloadAsync();
                 setLoading(true);
             } else {
@@ -234,7 +234,7 @@ const ProfileAfterLogin = () => {
 
                         <Modal
                             animationType="slide"
-                            transparent={true}
+                            transparent={true} 
                             visible={modalVisible}
                             onRequestClose={() => {
                                 setModalVisible(!modalVisible);

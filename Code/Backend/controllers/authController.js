@@ -2,7 +2,15 @@ const User = require("../models/User")
 
 const CryptoJS = require('crypto-js');
 const jwt = require("jsonwebtoken");
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+const cloudinary = require('cloudinary').v2;
 
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
+});
 
 module.exports = {
     createUser: async (req, res, next) => {
@@ -11,7 +19,6 @@ module.exports = {
             email: req.body.email,
             password: CryptoJS.AES.encrypt(req.body.password, process.env.SECRET).toString(),
         });
-
         try {
             const existingUser = await User.findOne({ username: req.body.username });
             if (existingUser) {
@@ -72,11 +79,8 @@ module.exports = {
             if (!req.headers.authorization) {
                 return res.status(400).json({ status: false, message: "Authorization header missing" });
             }
-
             const token = req.headers.authorization.split(' ')[1];
-            
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            console.log(`User ${decoded.id} disconnected`);
             
             res.status(200).json({ status: true, message: 'Logout successful' });
         } catch (error) {
@@ -86,30 +90,35 @@ module.exports = {
 
     updateUser: async (req, res, next) => {
         const { username: newUsername, email, profile } = req.body;
-    
         try {
             const existingUser = await User.findOne({ email });
             if (!existingUser) {
                 return res.status(404).json({ status: false, message: "User not found" });
             }
-            
-            if (newUsername !== existingUser.username) {
-                
+            if (newUsername && newUsername !== existingUser.username) {
                 const usernameExists = await User.findOne({ username: newUsername });
                 if (usernameExists) {
                     return res.status(409).json({ status: false, message: "Username already exists" });
                 }
             }
-    
-            await User.updateOne({ email }, {
-                $set: {
-                    username: newUsername,
-                    profile
-                },
-            });
-    
-            res.status(200).json({ status: true, message: "Updated" });
+
+            // Logica pentru încărcarea imaginii, dacă este prezentă
+            let imageUrl = profile || existingUser.profile;
+            if (req.file) {
+                const result = await cloudinary.uploader.upload(req.file.path);
+                imageUrl = result.secure_url;
+            } else {
+                console.log("No new image file provided, using provided URL or existing profile image.");
+            }
+
+            // Actualizare utilizator
+            existingUser.username = newUsername || existingUser.username;
+            existingUser.profile = imageUrl;
+            await existingUser.save();
+
+            res.status(200).json({ status: true, message: "Updated successfully", user: existingUser });
         } catch (error) {
+            console.error("Error updating user:", error);
             return next(error);
         }
     },    
@@ -122,7 +131,7 @@ module.exports = {
             if (!existingUser) {
                 return res.status(409).json({ status: false, message: "Username doesn't exists" });
             }
-
+            
             await User.updateOne({username: username}, {
                 $set: {
                     theme
@@ -138,7 +147,7 @@ module.exports = {
     checkAuth: (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
 
-        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        jwt.verify(token, process.env.JWT_SECRET, (err, user, profile) => {
             if (err) {
                 return res.status(403).json({ isAuthenticated: false });
             }

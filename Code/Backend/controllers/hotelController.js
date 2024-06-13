@@ -1,4 +1,5 @@
 const Hotel = require("../models/Hotel")
+const County = require("../models/County")
 
 module.exports = {
     addHotels: async(req, res, next) => {
@@ -6,7 +7,7 @@ module.exports = {
 
         try {
             const newHotel = new Hotel({
-                county_id, 
+                county_id,
                 imageUrls, 
                 location, 
                 title, 
@@ -22,6 +23,16 @@ module.exports = {
 
             await newHotel.save();
 
+            // Adăugarea ID-ului locației în array-ul de atracții al județului corespunzător
+            const county = await County.findById(county_id);
+            if (county) {
+                county.hotel.push(newHotel._id);  // Adaugă ID-ul locației la atracții
+                await county.save();
+            } else {
+                // Județul nu a fost găsit
+                return res.status(404).json({status: false, message: "County not found"});
+            }    
+
             res.status(201).json({status: true})
         } catch(error) {
             return next(error)
@@ -30,7 +41,8 @@ module.exports = {
 
     addReview: async (req, res, next) => {
         const hotelId = req.params.id;
-        const { username, rating, reviewText } = req.body;
+        const user_id = req.user.id;
+        const { rating, reviewText, profile } = req.body;
 
         try {
             const hotel = await Hotel.findById(hotelId, {createdAt: 0, updatedAt: 0, _v: 0})
@@ -40,7 +52,9 @@ module.exports = {
             }
 
             const newReview = {
-                username,
+                user_id: user_id, 
+                username: req.user.username, 
+                profile,
                 rating,
                 reviewText
             };
@@ -92,13 +106,11 @@ module.exports = {
             if(hotels.length === 0) {
                 return res.status(200).json([])
             }
-
             const hotelsWithRating = hotels.map(hotel => {
                 const totalRatings = hotel.reviews.reduce((sum, review) => sum + review.rating, 0);
                 const averageRating = hotel.reviews.length > 0 ? totalRatings / hotel.reviews.length : 0;
-                return { ...hotel._doc, averageRating }; // _doc is used to get the plain object
+                return { ...hotel._doc, averageRating }; 
             });
-
             return res.status(200).json({ hotels: hotelsWithRating })
         } catch(error) {
             return next(error)
@@ -117,7 +129,7 @@ module.exports = {
                 return { ...hotel.toObject(), averageRating }; // Adaugă averageRating la fiecare locație
             }).sort((a, b) => b.averageRating - a.averageRating).slice(0, 5); // Sortează descrescător după averageRating și limitează la primele 3
     
-            console.log('Top hotels fetched:', hotelsWithRatings);
+            //console.log('Top hotels fetched:', hotelsWithRatings);
             res.status(200).json(hotelsWithRatings);
         } catch (error) {
             console.error('Error fetching top hotels:', error);

@@ -73,7 +73,6 @@ const Events = () => {
         }
     }; 
 
-      
     const renderItem = ({ item }) => {
         if (item.type === 'header') { 
             return (

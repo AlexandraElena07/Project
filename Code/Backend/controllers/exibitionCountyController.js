@@ -51,7 +51,7 @@ module.exports = {
 
     getExhibitionCountyByEvent: async (req, res, next) => {
         const eventId = req.params.id;
-        console.log("Looking for ExhibitionCounty with Exhibition ID:", eventId); 
+        //console.log("Looking for ExhibitionCounty with Exhibition ID:", eventId); 
     
         try {
             const exhibitionCounty = await ExhibitionCounty.find({event_id: eventId});

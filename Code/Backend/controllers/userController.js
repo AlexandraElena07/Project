@@ -33,69 +33,94 @@ module.exports = {
     addToFavorites: async (req, res, next) => {
         const { itemId, itemType } = req.body;
         const user_id = req.user.id;
-
+    
         try {
             const user = await User.findById(user_id);
-            
+    
             if (!user) {
                 return res.status(401).json({ message: 'User not found' });
             }
-
-            let item; 
-
+    
+            let item;
+            let countyId;
+    
             if (itemType === 'Place') {
-                item = await Place.findById(itemId); 
+                item = await Place.findById(itemId);
+                countyId = item.county_id; // Asigură-te că schema Place are câmpul county_id
             } else if (itemType === 'County') {
-                item = await County.findById(itemId); 
+                item = await County.findById(itemId);
+                countyId = item._id; // Pentru County, countyId este același cu itemId
             } else {
-                item = await Hotel.findById(itemId); 
-            }            
-            
+                item = await Hotel.findById(itemId);
+                countyId = item.county_id; // Asigură-te că schema Hotel are câmpul county_id
+            }
+    
             if (!item) {
                 return res.status(401).json({ message: `${itemType} not found` });
             }
-
-            user.favorites.push({ _id: itemId, type: itemType });
+    
+            user.favorites.push({ _id: itemId, type: itemType, countyId });
             await user.save();
-
+    
             res.status(200).json({ message: `${itemType} added to favorites` });
         } catch (error) {
             return next(error);
         }
     },
-
+    
+    
     getFavorites: async (req, res, next) => {
         try {
-            const user = await User.findById(req.user.id).populate('favorites');
+            const user = await User.findById(req.user.id);
             
             if (!user) {
               return res.status(404).json({ message: 'User not found' });
             }
-            
-            res.status(200).json({ favorites: user.favorites });
+    
+            const favoritesDetailed = await Promise.all(user.favorites.map(async (fav) => {
+              let itemDetails;
+    
+              if (fav.type === 'Place') {
+                itemDetails = await Place.findById(fav._id);
+              } else if (fav.type === 'County') {
+                itemDetails = await County.findById(fav._id);
+              } else {
+                itemDetails = await Hotel.findById(fav._id);
+              }
+    
+              return {
+                _id: fav._id,
+                type: fav.type,
+                countyId: fav.countyId,
+                details: itemDetails
+              };
+            }));
+    
+            res.status(200).json({ favorites: favoritesDetailed });
           } catch (error) {
             next(error);
           }
     },
+    
 
-    removeFromFavorites: async (req, res, next) => {
-        const { itemId, itemType } = req.body;
-        const user_id = req.user.id;
+removeFromFavorites: async (req, res, next) => {
+    const { itemId, itemType } = req.body;
+    const user_id = req.user.id;
+  
+    try {
+      const user = await User.findById(user_id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      user.favorites = user.favorites.filter(fav => fav._id.toString() !== itemId || fav.type !== itemType);
+      
+      await user.save();
 
-        console.log('Received data:', { user_id, itemId, itemType });
-      
-        try {
-          const user = await User.findById(user_id);
-          if (!user) {
-            console.log('User not found:', user_id);
-            return res.status(404).json({ message: 'User not found' });
-          }
-      
-          user.favorites = user.favorites.filter(fav => fav._id.toString() !== itemId || fav.type !== itemType);
-          await user.save();
-          res.status(200).json({ message: `${itemType} removed from favorites` });
-        } catch (error) {
-            next(error);
-        }
+      res.status(200).json({ message: `${itemType} removed from favorites` });
+    } catch (error) {
+        next(error);
+    }
 }
+
 }

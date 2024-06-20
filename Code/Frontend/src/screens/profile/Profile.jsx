@@ -1,52 +1,43 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import reusable from '../../components/Reusable/reusable.style';
-import { HeightSpacer, ReusableBtn, ReusableText } from '../../components';
-import { TEXT, COLORS, SIZES } from '../../constants/theme'
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import SwitchSelector from 'react-native-switch-selector';
+import LogIn from '../authentication/LogIn';
+import { Registration } from '../authentication/Registration';
 import styles from './profile.style';
+import { COLORS, SIZES } from '../../constants/theme';
 
-const Profile = ({navigation}) => {
-  return (
-   <View style={styles.container}>
-      
-           <ReusableText
-            text={'ROExplorer'}
-            family={'semiboldIt'}
-            size={SIZES.xLarge}
-            color={COLORS.red}
-           />
-      
-     <Image source={require('../../../assets/images/profile1.png')} style={styles.image} /> 
+const Profile = () => {
+      const [selectedOption, setSelectedOption] = useState('Login');
 
-     <HeightSpacer height={30} />
+      const handleSwitchChange = (value) => {
+            setSelectedOption(value);
+      };
 
-     <ReusableBtn
-            onPress={() => navigation.navigate('LogIn')}
-            btnText={"Log in"}
-            width={(SIZES.width - 50)}
-            backgroundColor={COLORS.red}
-            borderColor={COLORS.red}
-            borderWidth={0}
-            textColor={COLORS.white}
-      />
+      return (
+            <View style={styles.container}>
+                  <View>
+                        {selectedOption === 'Login' ? <LogIn /> : <Registration />}
 
-      <HeightSpacer height={30} />
+                        <View style={styles.switchContainer}>
+                              <SwitchSelector
+                                    options={[
+                                          { label: 'Login', value: 'Login' },
+                                          { label: 'Register', value: 'Register' }
+                                    ]}
+                                    initial={0}
+                                    onPress={handleSwitchChange}
+                                    buttonColor={COLORS.red}
+                                    borderColor={COLORS.red}
+                                    textStyle={{ color: COLORS.red }}
+                                    selectedTextStyle={{ color: COLORS.white }}
+                                    style={styles.switchSelector}
+                                    fontSize={SIZES.small}
+                                    height={SIZES.xLarge}
+                              />
+                        </View>
+                  </View>
+            </View>
+      );
+};
 
-      <ReusableBtn
-            onPress={() => navigation.navigate('Registration')}
-            btnText={"Create new account"}
-            width={(SIZES.width - 50)}
-            backgroundColor={COLORS.transparency}
-            borderColor={COLORS.red}
-            borderWidth={2}
-            textColor={COLORS.red}
-      />
-
-      
-</View>
-  );
-}
-
-export default Profile
-
+export default Profile;

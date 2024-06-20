@@ -8,12 +8,10 @@ import { useNavigation } from '@react-navigation/native';
 import reusable from '../../components/Reusable/reusable.style';
 import { MaterialIcons } from '@expo/vector-icons'
 import { COLORS, SIZES } from '../../constants/theme';
-import HotelDetails from '../details/HotelDetails';
-import PlaceDetails from '../details/PlaceDetails';
 
 function SearchBar() {
-   const userTheme = useContext(themeContext);
-   const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
+    const userTheme = useContext(themeContext);
+    const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
 
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
@@ -22,11 +20,11 @@ function SearchBar() {
     const navigation = useNavigation();
 
     useEffect(() => {
-        if (query.length > 2) { // Începe să încarci sugestii după cel puțin 3 caractere
+        if (query.length > 2) {
             fetchSuggestions();
             setResults([]);
         } else {
-            setSuggestions([]); // Curăță sugestiile dacă query-ul este prea scurt
+            setSuggestions([]);
         }
     }, [query]);
 
@@ -42,8 +40,8 @@ function SearchBar() {
     const handleSearch = async () => {
         try {
             const response = await axios.get(`http://10.9.31.61:5003/api/search?query=${query}`);
-            setResults(response.data); // Setează rezultatele complete ale căutării
-            setSuggestions([]); // Curăță sugestiile după căutare
+            setResults(response.data);
+            setSuggestions([]);
         } catch (error) {
             console.error('Failed to search:', error);
         }
@@ -52,62 +50,62 @@ function SearchBar() {
     const handleQueryChange = (text) => {
         setQuery(text);
         if (!text) {
-            setResults([]); // Resetare rezultate la ștergerea completă a căutării
+            setResults([]);
         }
     };
 
     return (
-      <SafeAreaView style={[{flex: 1, backgroundColor: currentTheme.background }]}>
-      <View style={[reusable.container, {backgroundColor: currentTheme.background}]}>
-        <View style={[reusable.rowWithSpace('flex-start'), {position: 'relative'}]}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <MaterialIcons name="arrow-back-ios" size={SIZES.large} color={currentTheme.color}/>
-            </TouchableOpacity>
-            <TextInput
-                value={query}
-                onChangeText={handleQueryChange}
-                placeholder="Search for attraction or accommodation"
-                placeholderTextColor={currentTheme.backgroundSelectedButton}
-                style={[styles.input, {backgroundColor: currentTheme.backgroundTextInput}]}
-                color={currentTheme.color}
-            />
-        </View>
-            <Button title="Search" color={COLORS.red} onPress={handleSearch} />
-            {suggestions.length > 0 && (
-                <FlatList
-                    data={suggestions}
-                    keyExtractor={item => item._id}
-                    renderItem={({ item }) => (
-                        <View style={[reusable.rowWithSpace('flex-start'), {position: 'relative'}]}>
-                            <Image source={{uri: item.imageUrls[0]}}  style={styles.image}/>
-                            <TouchableOpacity onPress={() => {
-                                const screenName = item.type === 'accommodation' ? 'HotelDetails' : 'PlaceDetails';
-                                navigation.navigate(screenName,  item._id );
+        <SafeAreaView style={[{ flex: 1, backgroundColor: currentTheme.background }]}>
+            <View style={[reusable.container, { backgroundColor: currentTheme.background }]}>
+                <View style={[reusable.rowWithSpace('flex-start'), { position: 'relative' }]}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <MaterialIcons name="arrow-back-ios" size={SIZES.large} color={currentTheme.color} />
+                    </TouchableOpacity>
+                    <TextInput
+                        value={query}
+                        onChangeText={handleQueryChange}
+                        placeholder="Search for attraction or accommodation"
+                        placeholderTextColor={currentTheme.backgroundSelectedButton}
+                        style={[styles.input, { backgroundColor: currentTheme.backgroundTextInput }]}
+                        color={currentTheme.color}
+                    />
+                </View>
+                <Button title="Search" color={COLORS.red} onPress={handleSearch} />
+                {suggestions.length > 0 && (
+                    <FlatList
+                        data={suggestions}
+                        keyExtractor={item => item._id}
+                        renderItem={({ item }) => (
+                            <View style={[reusable.rowWithSpace('flex-start'), { position: 'relative' }]}>
+                                <Image source={{ uri: item.imageUrls[0] }} style={styles.image} />
+                                <TouchableOpacity onPress={() => {
+                                    const screenName = item.type === 'accommodation' ? 'HotelDetails' : 'PlaceDetails';
+                                    navigation.navigate(screenName, item._id);
                                 }}>
-                                <Text style={[styles.text, {color: currentTheme.color}]}>{item.title}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                />
-            )}
+                                    <Text style={[styles.text, { color: currentTheme.color }]}>{item.title}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    />
+                )}
 
-            { suggestions.length === 0 && results.length > 0 && (
-                <FlatList
-                    data={results}
-                    keyExtractor={item => item._id.toString()} 
-                    renderItem={({ item }) => (
-                        <View style={[reusable.rowWithSpace('flex-start'), {position: 'relative'}]}>
-                            <Image source={{uri: item.imageUrls[0]}}  style={styles.image}/>
-                            <TouchableOpacity onPress={() => {
-                                const screenName = item.type === 'accommodation' ? 'HotelDetails' : 'PlaceDetails';
-                                navigation.navigate(screenName,  item._id );
+                {suggestions.length === 0 && results.length > 0 && (
+                    <FlatList
+                        data={results}
+                        keyExtractor={item => item._id.toString()}
+                        renderItem={({ item }) => (
+                            <View style={[reusable.rowWithSpace('flex-start'), { position: 'relative' }]}>
+                                <Image source={{ uri: item.imageUrls[0] }} style={styles.image} />
+                                <TouchableOpacity onPress={() => {
+                                    const screenName = item.type === 'accommodation' ? 'HotelDetails' : 'PlaceDetails';
+                                    navigation.navigate(screenName, item._id);
                                 }}>
-                                <Text style={styles.text}>{item.title}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                />
-            )}
+                                    <Text style={[styles.text, { color: currentTheme.color }]}>{item.title}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    />
+                )}
             </View>
         </SafeAreaView>
     );
@@ -122,16 +120,16 @@ const styles = StyleSheet.create({
         padding: 10,
         margin: 6,
         flex: 1
-    }, 
+    },
     image: {
-        width: 30, 
-        height: 30, 
-        borderRadius: 99, 
+        width: 30,
+        height: 30,
+        borderRadius: 99,
         marginRight: 5
     },
-    text : {
-        padding: 10, 
-        flex: 1, 
-        flexWrap: 'wrap' 
+    text: {
+        padding: 10,
+        flex: 1,
+        flexWrap: 'wrap'
     }
 })

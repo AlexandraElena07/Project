@@ -34,7 +34,9 @@ app.use(express.urlencoded({limit: "10mb", extended: true}));
 app.use(cors());
 
 const errorHandler = require('./middleware/errorHandling')
+
 app.use(errorHandler);
+
 
 app.use('/api/', authRouter);
 app.use('/api/users', userRouter);

@@ -38,19 +38,19 @@ const ProfileAfterLogin = () => {
 
     const deviceTheme = useColorScheme();
 
-   
+
     const getDataFromDatabase = async () => {
         try {
             const token = await AsyncStorage.getItem('token');
             const response = await axios.get('http://10.9.31.61:5003/api/users', {
                 headers: {
-                Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
             setUsername(response.data.username);
             setEmail(response.data.email);
             setProfile(response.data.profile);
-            
+
             setIsAuthenticated(true);
             setResponseData(response.data);
 
@@ -58,23 +58,27 @@ const ProfileAfterLogin = () => {
             console.error('Error fetching username:', error);
             if (error.response && error.response.status === 403) {
                 Alert.alert('Error', 'Authentication failed. Please login again.');
-                handleLogout(); 
+                handleLogout();
             } else {
                 Alert.alert('Error', 'An error occurred while fetching username.');
             }
         }
     };
-    
+
     useEffect(() => {
-        getDataFromDatabase();
-    }, []);
+        const unsubscribe = navigation.addListener('focus', () => {
+            getDataFromDatabase();
+        });
+
+        return unsubscribe;
+    }, [navigation]);
 
     const handleLogout = async () => {
         const token = await AsyncStorage.getItem('token');
         console.log(token)
         await AsyncStorage.removeItem('token');
-        
-        setLoading(true); 
+
+        setLoading(true);
 
         try {
             await Updates.reloadAsync();
@@ -90,69 +94,69 @@ const ProfileAfterLogin = () => {
             const response = await axios.delete('http://10.9.31.61:5003/api/users', {
                 headers: {
                     Authorization: `Bearer ${token}`
-                  }
+                }
             });
 
             await AsyncStorage.removeItem('token');
-        
+
             Alert.alert('Success', response.data.message, () => {
-            setTimeout(async () => {
+                setTimeout(async () => {
                     try {
                         await Updates.reloadAsync();
                         setLoading(true);
                     } catch (error) {
                         console.error('Reloading failed:', error.message);
                     }
-                }, 2000);
-            });  
+                }, 1000);
+            });
         } catch (error) {
             Alert.alert('Error', 'An error occurred while deleting your account. Please try again later.');
             console.error('Error:', error);
         }
     };
-    
+
     const handleActionSheet = () => {
         ActionSheetIOS.showActionSheetWithOptions(
             {
-              options: options,
-              cancelButtonIndex: options.length - 1,
-              destructiveButtonIndex: destructiveButtonIndex !== null ? destructiveButtonIndex : undefined,
-              title: 'Dark Mode'         
+                options: options,
+                cancelButtonIndex: options.length - 1,
+                destructiveButtonIndex: destructiveButtonIndex !== null ? destructiveButtonIndex : undefined,
+                title: 'Dark Mode'
             },
             (index) => handleOptionPress(index)
         );
     };
 
     const handleOptionPress = (index) => {
-        if (index === options.length - 1) return; 
-        setSelectedOption(index); 
-        
-        
+        if (index === options.length - 1) return;
+        setSelectedOption(index);
+
+
         if (options[index] === 'On' || options[index] === 'Off' || options[index] === 'System') {
-          setDestructiveButtonIndex(index);
+            setDestructiveButtonIndex(index);
         } else {
-          setDestructiveButtonIndex(null);
+            setDestructiveButtonIndex(null);
         }
-        
+
         if (options[index] === 'On') {
             updateThemeOption('dark', username);
         } else if (options[index] === 'Off') {
             updateThemeOption('light', username);
-        } else if (options[index] === 'System'){
+        } else if (options[index] === 'System') {
             updateThemeOption(deviceTheme, username);
         }
 
         switch (index) {
-            case 0: 
+            case 0:
                 setDarkMode(true);
                 break;
-            case 1: 
+            case 1:
                 setDarkMode(false);
                 break;
-            case 2: 
-                if (deviceTheme === 'dark') { 
+            case 2:
+                if (deviceTheme === 'dark') {
                     setDarkMode(true)
-                } else { 
+                } else {
                     setDarkMode(false)
                 }
                 break;
@@ -165,7 +169,7 @@ const ProfileAfterLogin = () => {
     const updateThemeOption = async (selectedOption, username) => {
         try {
             const response = await axios.post('http://10.9.31.61:5003/api/saveTheme', { username: username, theme: selectedOption });
-        
+
             if (response.data.status) {
                 //console.log('Tema a fost salvată cu succes în baza de date.');
                 await Updates.reloadAsync();
@@ -178,16 +182,16 @@ const ProfileAfterLogin = () => {
             console.error('Error:', error);
         }
     };
-    
-    
+
+
     return (
-        loading ? ( 
+        loading ? (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator color={COLORS.darkGrey} />
             </View>
         ) : (
-            <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background}}>
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.container, {backgroundColor: currentTheme.background}]}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background }}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.container, { backgroundColor: currentTheme.background }]}>
                     <View style={styles.profile}>
                         <TouchableOpacity onPress={() => navigation.navigate('ProfileImage')}>
                             <View style={styles.profileAvatarWrapper}>
@@ -208,8 +212,10 @@ const ProfileAfterLogin = () => {
                                 size={SIZES.large}
                                 color={currentTheme.color}
                             />
-                            <WidthSpacer width={10}/>
-                            <MaterialIcons onPress={() => navigation.navigate('UpdateProfile', {data: responseData})} name="arrow-forward-ios" size={SIZES.medium} color={currentTheme.color}/>
+                            <WidthSpacer width={10} />
+                            <MaterialIcons
+                                onPress={() => navigation.navigate('UpdateProfile', { data: responseData })}
+                                name="arrow-forward-ios" size={SIZES.medium} color={currentTheme.color} />
                         </View>
 
                         <HeightSpacer height={25} />
@@ -222,28 +228,27 @@ const ProfileAfterLogin = () => {
                             family={'semibold'}
                             size={SIZES.medium}
                             color={currentTheme.color}
-                            />
-
+                        />
                     </View>
 
                     <View>
-                        <ProfileTile title={"Favorites"} icon={'favorite'} onPress={() => navigation.navigate('Favorites')}/>
-                        <ProfileTile title={"Change personal information"} icon={'person'} onPress={() => navigation.navigate('UpdateProfile', {data: responseData})}/>
+                        <ProfileTile title={"Favorites"} icon={'favorite'} onPress={() => navigation.navigate('Favorites')} />
+                        <ProfileTile title={"Change personal information"} icon={'person'} onPress={() => navigation.navigate('UpdateProfile', { data: responseData })} />
                         <HeightSpacer height={2} />
-                        <ProfileTile title={"Delete your account"} icon={'delete'} onPress={() => setModalVisible(true)}/>
+                        <ProfileTile title={"Delete your account"} icon={'delete'} onPress={() => setModalVisible(true)} />
 
                         <Modal
                             animationType="slide"
-                            transparent={true} 
+                            transparent={true}
                             visible={modalVisible}
                             onRequestClose={() => {
                                 setModalVisible(!modalVisible);
                             }}>
-                            
-                            <View style={[styles.centeredView, {backgroundColor: currentTheme.background}]}>
-                                <View style={[styles.modalView, {backgroundColor: currentTheme.background}]}>
 
-                                    <Text style={[styles.modalText, {color: currentTheme.color}]}>Delete your account and personal info</Text>
+                            <View style={[styles.centeredView, { backgroundColor: currentTheme.background }]}>
+                                <View style={[styles.modalView, { backgroundColor: currentTheme.background }]}>
+
+                                    <Text style={[styles.modalText, { color: currentTheme.color }]}>Delete your account and personal info</Text>
 
                                     <Text style={styles.textStyle}>Deleting your account is a permanent action and will result in the loss of access to all features of this app. Your saved places, favorite lists, followed pages, and personal information will be permanently removed.</Text>
 
@@ -264,7 +269,7 @@ const ProfileAfterLogin = () => {
                                                 family={'medium'}
                                                 size={SIZES.small}
                                                 color={COLORS.darkGrey}
-                                            />                  
+                                            />
                                         </View>
 
                                         <HeightSpacer height={10} />
@@ -274,9 +279,9 @@ const ProfileAfterLogin = () => {
                                     <Text style={styles.textStyle}>If you wish to proceed with deleting your account, please click the DELETE button below.</Text>
 
                                     <Text style={styles.textStyle}>If you have changed your mind, click CANCEL.</Text>
-                                    
+
                                     <HeightSpacer height={150} />
-                                    
+
                                     <View style={reusable.rowWithSpace('space-between')}>
                                         <View style={reusable.rowWithSpace('flex-start')}>
 
@@ -284,7 +289,7 @@ const ProfileAfterLogin = () => {
                                                 <Text style={styles.buttonTextDelete}>Delete</Text>
                                             </TouchableOpacity>
 
-                                            <WidthSpacer width={35}/>
+                                            <WidthSpacer width={35} />
 
                                             <TouchableOpacity style={styles.buttonCancel} onPress={() => setModalVisible(!modalVisible)}>
                                                 <Text style={styles.buttonTextCancel}>Cancel</Text>
@@ -306,7 +311,7 @@ const ProfileAfterLogin = () => {
                             family={'semibold'}
                             size={SIZES.medium}
                             color={currentTheme.color}
-                            />
+                        />
 
                     </View>
 
@@ -322,12 +327,12 @@ const ProfileAfterLogin = () => {
                             family={'semibold'}
                             size={SIZES.medium}
                             color={currentTheme.color}
-                            />
+                        />
 
                     </View>
 
                     <View>
-                        <ProfileTile title={"About Us"} icon={'info'} onPress={() => setModalVisibleAbout(true)}/>
+                        <ProfileTile title={"About Us"} icon={'info'} onPress={() => setModalVisibleAbout(true)} />
 
                         <Modal
                             animationType="slide"
@@ -335,49 +340,49 @@ const ProfileAfterLogin = () => {
                             visible={modalVisibleAbout}
                             onRequestClose={() => {
                                 setModalVisible(!modalVisibleAbout);
-                        }}>
-                        
+                            }}>
+
                             <View style={styles.centeredView}>
-                                <View style={[styles.modalViewAbout, {backgroundColor: currentTheme.background}]}>
-                                    <View style={[styles.centerView, {backgroundColor: currentTheme.background}]}>
+                                <View style={[styles.modalViewAbout, { backgroundColor: currentTheme.background }]}>
+                                    <View style={[styles.centerView, { backgroundColor: currentTheme.background }]}>
                                         {userTheme === 'dark' ? (
-                                        <Image
-                                            source={require('../../../assets/images/logo2White.png')}
-                                            style={styles.image}
-                                        />
+                                            <Image
+                                                source={require('../../../assets/images/logo2White.png')}
+                                                style={styles.image}
+                                            />
                                         ) : (
-                                        <Image
-                                            source={require('../../../assets/images/logo2.png')}
-                                            style={styles.image}
-                                        />
+                                            <Image
+                                                source={require('../../../assets/images/logo2.png')}
+                                                style={styles.image}
+                                            />
                                         )}
                                     </View>
 
                                     <HeightSpacer height={50} />
 
-                                    <Text style={[styles.textStyleAbout, {color: currentTheme.color}]}>RoExplorer is an application designed to promote Romania and to facilitate trip planning for tourists.</Text>
+                                    <Text style={[styles.textStyleAbout, { color: currentTheme.color }]}>RoExplorer is an application designed to promote Romania and to facilitate trip planning for tourists.</Text>
 
                                     <HeightSpacer height={25} />
 
-                                    <Text style={[styles.textStyleAbout, {color: currentTheme.color}]}>The platform provides all the necessary information for tourists: Tourist attractions, Map of locations near the user, Museums, Tourist Circuits, Recommendations section, ideas for Leisure Time, Accommodations and Restaurants and Useful Information.</Text>
-                                    
+                                    <Text style={[styles.textStyleAbout, { color: currentTheme.color }]}>The platform provides all the necessary information for tourists: Tourist attractions, Map of locations near the user, Museums, Tourist Circuits, Recommendations section, ideas for Leisure Time, Accommodations and Restaurants and Useful Information.</Text>
+
                                     <HeightSpacer height={100} />
 
-                                    <View style={[styles.centerView, {backgroundColor: currentTheme.background}]}>
+                                    <View style={[styles.centerView, { backgroundColor: currentTheme.background }]}>
                                         <TouchableOpacity style={styles.buttonCancel} onPress={() => setModalVisibleAbout(!modalVisibleAbout)}>
                                             <Text style={styles.buttonTextCancel}>Cancel</Text>
                                         </TouchableOpacity>
                                         <HeightSpacer height={25} />
                                     </View>
-                                    
+
                                 </View>
                             </View>
 
 
                         </Modal>
-                        
+
                         <HeightSpacer height={2} />
-                        <ProfileTile title={"Contact Us"} icon={'contact-page'} onPress={() => navigation.navigate('Contact', {data: responseData})}/>   
+                        <ProfileTile title={"Contact Us"} icon={'contact-page'} onPress={() => navigation.navigate('Contact', { data: responseData })} />
                     </View>
 
                     <HeightSpacer height={25} />
@@ -386,7 +391,7 @@ const ProfileAfterLogin = () => {
                         <ReusableBtn
                             onPress={handleLogout}
                             btnText={"Sign Out"}
-                            width={(SIZES.width - 50)/2.2}
+                            width={(SIZES.width - 50) / 2.2}
                             backgroundColor={COLORS.red}
                             borderColor={COLORS.red}
                             borderWidth={1}

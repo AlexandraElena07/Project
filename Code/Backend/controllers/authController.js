@@ -24,51 +24,51 @@ module.exports = {
             if (existingUser) {
                 return res.status(409).json({ status: false, message: "Username already exists" });
             }
-            
+
             await newUser.save();
 
-            res.status(201).json({status: true, message: "User successfully created"})
+            res.status(201).json({ status: true, message: "User successfully created" })
         } catch (error) {
             return next(error)
         }
-    }, 
+    },
 
 
     loginUser: async (req, res, next) => {
         try {
-            const user = await User.findOne({email: req.body.email});
-    
+            const user = await User.findOne({ email: req.body.email });
+
             if (!user) {
-                return res.status(401).json({status: false, message: "User not found"});
+                return res.status(401).json({ status: false, message: "User not found" });
             }
-    
+
             const decryptedPassword = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
             const decryptedString = decryptedPassword.toString(CryptoJS.enc.Utf8);
-    
+
             if (decryptedString !== req.body.password) {
-                return res.status(401).json({status: false, message: "Wrong password"});
+                return res.status(401).json({ status: false, message: "Wrong password" });
             }
-    
+
             if (!user.role) {
-                return res.status(403).json({status: false, message: "User role not defined"});
+                return res.status(403).json({ status: false, message: "User role not defined" });
             }
-    
+
             const validRoles = ["user", "admin"];
             if (!validRoles.includes(user.role)) {
-                return res.status(403).json({status: false, message: "Invalid user role"});
+                return res.status(403).json({ status: false, message: "Invalid user role" });
             }
-    
+
             const userToken = jwt.sign(
                 {
                     id: user._id,
                     username: user.username,
-                    role: user.role 
-                }, process.env.JWT_SECRET, {expiresIn: "360d"}
+                    role: user.role
+                }, process.env.JWT_SECRET, { expiresIn: "360d" }
             );
-    
+
             const user_id = user._id;
-    
-            res.status(200).json({status: true, id: user_id, token: userToken});
+
+            res.status(200).json({ status: true, id: user_id, token: userToken });
         } catch (error) {
             return next(error);
         }
@@ -81,7 +81,7 @@ module.exports = {
             }
             const token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            
+
             res.status(200).json({ status: true, message: 'Logout successful' });
         } catch (error) {
             return next(error);
@@ -95,6 +95,7 @@ module.exports = {
             if (!existingUser) {
                 return res.status(404).json({ status: false, message: "User not found" });
             }
+
             if (newUsername && newUsername !== existingUser.username) {
                 const usernameExists = await User.findOne({ username: newUsername });
                 if (usernameExists) {
@@ -102,7 +103,6 @@ module.exports = {
                 }
             }
 
-            // Logica pentru încărcarea imaginii, dacă este prezentă
             let imageUrl = profile || existingUser.profile;
             if (req.file) {
                 const result = await cloudinary.uploader.upload(req.file.path);
@@ -111,9 +111,9 @@ module.exports = {
                 console.log("No new image file provided, using provided URL or existing profile image.");
             }
 
-            // Actualizare utilizator
             existingUser.username = newUsername || existingUser.username;
             existingUser.profile = imageUrl;
+
             await existingUser.save();
 
             res.status(200).json({ status: true, message: "Updated successfully", user: existingUser });
@@ -121,9 +121,9 @@ module.exports = {
             console.error("Error updating user:", error);
             return next(error);
         }
-    },    
+    },
 
-    saveTheme: async(req, res, next) => {
+    saveTheme: async (req, res, next) => {
         const { username, theme } = req.body;
 
         try {
@@ -131,13 +131,13 @@ module.exports = {
             if (!existingUser) {
                 return res.status(409).json({ status: false, message: "Username doesn't exists" });
             }
-            
-            await User.updateOne({username: username}, {
+
+            await User.updateOne({ username: username }, {
                 $set: {
                     theme
                 },
             });
-    
+
             res.status(200).json({ status: true, message: "Theme successfully added" });
         } catch (error) {
             return next(error);
@@ -151,7 +151,7 @@ module.exports = {
             if (err) {
                 return res.status(403).json({ isAuthenticated: false });
             }
-    
+
             res.json({ isAuthenticated: true, username: user.username });
         });
     }

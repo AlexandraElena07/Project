@@ -25,20 +25,20 @@ const Events = () => {
         try {
             const response = await axios.get('http://10.9.31.61:5003/api/events');
             let events = response.data.events;
-    
+
             events = events.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
-    
+
             await Promise.all(events.map(async (event) => {
                 const res = await axios.get(`http://10.9.31.61:5003/api/eventCounty/byEvent/${event._id}`);
-                event.eventCounties = res.data; 
+                event.eventCounties = res.data;
             }));
-    
+
             setEvents(events);
         } catch (error) {
             console.error('Error:', error);
         }
     };
-    
+
 
     const getCountiesFromDatabase = async () => {
         try {
@@ -65,16 +65,16 @@ const Events = () => {
 
     const handleSitePress = async (url) => {
         const supported = await Linking.canOpenURL(url);
-    
+
         if (supported) {
-          await Linking.openURL(url);
+            await Linking.openURL(url);
         } else {
-          Alert.alert(`Can't open this URL: ${url}`);
+            Alert.alert(`Can't open this URL: ${url}`);
         }
-    }; 
+    };
 
     const renderItem = ({ item }) => {
-        if (item.type === 'header') { 
+        if (item.type === 'header') {
             return (
                 <FlatList
                     data={item.data}
@@ -82,53 +82,53 @@ const Events = () => {
                     keyExtractor={(item) => item._id}
                     showsHorizontalScrollIndicator={false}
                     renderItem={({ item }) => (
-                    <View style={{margin: SIZES.medium}}>
-                        <TouchableOpacity onPress={() => handleCountySelection(item._id)}>
-                            <View style={reusable.rowWithSpace('space-between')}>
-                                <View style={reusable.rowWithSpace('flex-start')}>
-                                    <MaterialIcons name={selectedCounty === item._id ? 'radio-button-checked' : 'radio-button-unchecked'} color={currentTheme.color}/>
-                                    <WidthSpacer width={10}/>
-                                    <ReusableText
-                                        text={item.county}
-                                        family={'medium'}
-                                        size={TEXT.small}
-                                        color={currentTheme.color}
-                                        align={"center"}
-                                    />
+                        <View style={{ margin: SIZES.medium }}>
+                            <TouchableOpacity onPress={() => handleCountySelection(item._id)}>
+                                <View style={reusable.rowWithSpace('space-between')}>
+                                    <View style={reusable.rowWithSpace('flex-start')}>
+                                        <MaterialIcons name={selectedCounty === item._id ? 'radio-button-checked' : 'radio-button-unchecked'} color={currentTheme.color} />
+                                        <WidthSpacer width={10} />
+                                        <ReusableText
+                                            text={item.county}
+                                            family={'medium'}
+                                            size={TEXT.small}
+                                            color={currentTheme.color}
+                                            align={"center"}
+                                        />
+                                    </View>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
+                            </TouchableOpacity>
 
-                       
-                    </View>
+
+                        </View>
                     )}
                 />
             );
         } else if (item.type === 'eventTitle') {
             return (
                 <View style={{ marginVertical: SIZES.medium }}>
-                    <HeightSpacer height={40}/>
+                    <HeightSpacer height={40} />
                     <Text style={{
                         fontSize: TEXT.xLarge,
                         color: currentTheme.color,
                         fontWeight: 'bold',
                         textAlign: 'center'
                     }}>{item.data.title}</Text>
-                    <HeightSpacer height={20}/>
+                    <HeightSpacer height={20} />
                 </View>
             );
         } else if (item.type === 'event') {
             return (
-                <View style={{margin: 20}}>
-                    <NetworkImage source={item.data.imageUrl} width={"100%"} height={210} radius={12} resizeMode={'cover'}/>
-                    <HeightSpacer height={15}/>
+                <View style={{ margin: 20 }}>
+                    <NetworkImage source={item.data.imageUrl} width={"100%"} height={210} radius={12} resizeMode={'cover'} />
+                    <HeightSpacer height={15} />
                     <ReusableText
                         text={`${item.data.title} ${item.data.county_name} from ${new Date(item.data.start_date).toLocaleDateString()} to ${new Date(item.data.end_date).toLocaleDateString()}`}
                         family={'regular'}
                         size={TEXT.medium}
                         color={currentTheme.color}
                     />
-                    <HeightSpacer height={10}/>
+                    <HeightSpacer height={10} />
                     {item.data.eventCounties && item.data.eventCounties.length > 0 && (
                         <View key={item.data.eventCounties[0]._id}>
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -148,9 +148,9 @@ const Events = () => {
                                     </Text>
                                 )}
                                 {item.data.eventCounties[1].description && (
-                                <Text style={{ color: currentTheme.color, fontSize: 16, lineHeight: 25 }}>
-                                    {'Details: '}
-                                </Text>                                
+                                    <Text style={{ color: currentTheme.color, fontSize: 16, lineHeight: 25 }}>
+                                        {'Details: '}
+                                    </Text>
                                 )}
                                 {item.data.eventCounties[1].description && (
                                     <TouchableOpacity onPress={() => handleSitePress(item.data.eventCounties[0].description)}>
@@ -165,41 +165,32 @@ const Events = () => {
                                     </Text>
                                 )}
                             </View>
-                            <HeightSpacer height={20}/>
+                            <HeightSpacer height={20} />
                         </View>
                     )}
 
 
                     <TouchableOpacity
-                                
-                                onPress={() =>  navigation.navigate('EventDetails',  item.data._id )}>
-
-                                <View style={reusable.rowWithSpace('space-between')}>
-                                    <View style={reusable.rowWithSpace('flex-start')}>
-                                            
-                                            
-                                                <ReusableText
-                                                    text={'Read More'}
-                                                    family={''}
-                                                    size={TEXT.medium}
-                                                    color={COLORS.red}
-                                                />
-
-                                                <WidthSpacer width={5}/>
-
-                                                <MaterialIcons name={'read-more'} color={COLORS.red} size={TEXT.medium}/>
-                                            
-                                    </View>
-                                </View>
-                                
-
-                            </TouchableOpacity>
+                        onPress={() => navigation.navigate('EventDetails', item.data._id)}>
+                        <View style={reusable.rowWithSpace('space-between')}>
+                            <View style={reusable.rowWithSpace('flex-start')}>
+                                <ReusableText
+                                    text={'Read More'}
+                                    family={''}
+                                    size={TEXT.medium}
+                                    color={COLORS.red}
+                                />
+                                <WidthSpacer width={5} />
+                                <MaterialIcons name={'read-more'} color={COLORS.red} size={TEXT.medium} />
+                            </View>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             );
         }
     }
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background}}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background }}>
             <FlatList
                 data={combinedData}
                 keyExtractor={(item, index) => item.type + index}

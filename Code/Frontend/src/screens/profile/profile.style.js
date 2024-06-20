@@ -1,20 +1,26 @@
 import { StyleSheet } from "react-native";
-import { SIZES, COLORS } from "../../constants/theme";
+import { COLORS, SIZES } from "../../constants/theme";
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center', 
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: SIZES.large
+    },
+    content: {
         alignItems: 'center',
     },
-    image: {
-        resizeMode: "cover",
-        width: SIZES.width,
-        height: SIZES.height/3
+    switchContainer: {
+        alignItems: 'center',
+        marginTop: 20,
     },
-    stack: {
-        alignItems: "center"
-    }
-})
+    switchSelector: {
+        width: 200,
+        borderWidth: 1,
+        borderRadius: 20,
+        borderColor: COLORS.red
+    },
+});
 
 export default styles

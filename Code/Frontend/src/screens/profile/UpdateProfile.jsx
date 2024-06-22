@@ -35,7 +35,7 @@ const UpdateProfile = () => {
 
     const handleImagePicked = async (pickerResult) => {
         if (pickerResult.cancelled || !pickerResult.assets) {
-            console.log('No image selected or operation cancelled.');
+            //console.log('No image selected or operation cancelled.');
             return;
         }
 

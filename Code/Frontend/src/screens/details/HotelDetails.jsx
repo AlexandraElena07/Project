@@ -144,7 +144,7 @@ const HotelDetails = () => {
             const token = await AsyncStorage.getItem('token');
 
             if (!token) {
-                console.log('User not authenticated.');
+                //console.log('User not authenticated.');
                 return;
             }
 
@@ -243,7 +243,7 @@ const HotelDetails = () => {
             const token = await AsyncStorage.getItem('token');
 
             if (!token) {
-                console.log('User not authenticated');
+                //console.log('User not authenticated');
                 return;
             }
 

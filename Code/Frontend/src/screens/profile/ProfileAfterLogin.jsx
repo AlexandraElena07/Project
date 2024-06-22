@@ -75,7 +75,7 @@ const ProfileAfterLogin = () => {
 
     const handleLogout = async () => {
         const token = await AsyncStorage.getItem('token');
-        console.log(token)
+        //console.log(token)
         await AsyncStorage.removeItem('token');
 
         setLoading(true);

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { SafeAreaView, TextInput, FlatList, Text, TouchableOpacity, Button, StyleSheet, View, Image, ScrollView } from 'react-native';
+import { SafeAreaView, TextInput, FlatList, Text, TouchableOpacity, Button, StyleSheet, View, Image, Keyboard } from 'react-native';
 import axios from 'axios';
 import themeContext from '../../constants/themeContext';
 import themeDark from '../../constants/themeDark';
-import { HeightSpacer } from '../../components';
 import { useNavigation } from '@react-navigation/native';
 import reusable from '../../components/Reusable/reusable.style';
 import { MaterialIcons } from '@expo/vector-icons'
@@ -42,6 +41,7 @@ function SearchBar() {
             const response = await axios.get(`http://10.9.31.61:5003/api/search?query=${query}`);
             setResults(response.data);
             setSuggestions([]);
+            Keyboard.dismiss();
         } catch (error) {
             console.error('Failed to search:', error);
         }

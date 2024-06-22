@@ -23,11 +23,19 @@ const CountyDetails = ({ navigation }) => {
     const getDataFromDatabase = async () => {
         try {
             const responsePlaces = await axios.get(`http://10.9.31.61:5003/api/places/byCounty/${item._id}`);
-            const filteredPlaces = responsePlaces.data.places.slice(0, 6);
+
+            let fetchedPlaces = [...responsePlaces.data.places];
+            fetchedPlaces.sort((a, b) => b.averageRating - a.averageRating);
+
+            const filteredPlaces = fetchedPlaces.slice(0, 4);
             setPlaces(filteredPlaces);
 
             const responseHotels = await axios.get(`http://10.9.31.61:5003/api/hotels/byCounty/${item._id}`);
-            const filteredHotels = responseHotels.data.hotels.slice(0, 6);
+
+            let fetchedHotels = [...responseHotels.data.hotels];
+            fetchedHotels.sort((a, b) => b.averageRating - a.averageRating);
+
+            const filteredHotels = fetchedHotels.slice(0, 4);
             setHotels(filteredHotels);
         } catch (error) {
             console.error('Error:', error);

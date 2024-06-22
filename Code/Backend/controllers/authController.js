@@ -1,4 +1,6 @@
-const User = require("../models/User")
+const User = require("../models/User");
+const Place = require("../models/Places");
+const Hotel = require("../models/Hotel");
 
 const CryptoJS = require('crypto-js');
 const jwt = require("jsonwebtoken");
@@ -36,7 +38,13 @@ module.exports = {
 
     loginUser: async (req, res, next) => {
         try {
-            const user = await User.findOne({ email: req.body.email });
+            const { email, password } = req.body;
+
+            if (!email || !password) {
+                return res.status(400).json({ status: false, message: "Email and password are required" });
+            }
+
+            const user = await User.findOne({ email });
 
             if (!user) {
                 return res.status(401).json({ status: false, message: "User not found" });
@@ -45,7 +53,7 @@ module.exports = {
             const decryptedPassword = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
             const decryptedString = decryptedPassword.toString(CryptoJS.enc.Utf8);
 
-            if (decryptedString !== req.body.password) {
+            if (decryptedString !== password) {
                 return res.status(401).json({ status: false, message: "Wrong password" });
             }
 
@@ -70,7 +78,8 @@ module.exports = {
 
             res.status(200).json({ status: true, id: user_id, token: userToken });
         } catch (error) {
-            return next(error);
+            console.error("Error during login:", error);  // Adaugă un log pentru debug
+            return res.status(500).json({ status: false, message: "Internal Server Error" });
         }
     },
 
@@ -107,14 +116,25 @@ module.exports = {
             if (req.file) {
                 const result = await cloudinary.uploader.upload(req.file.path);
                 imageUrl = result.secure_url;
-            } else {
-                console.log("No new image file provided, using provided URL or existing profile image.");
             }
 
+            const oldUsername = existingUser.username;
             existingUser.username = newUsername || existingUser.username;
             existingUser.profile = imageUrl;
 
             await existingUser.save();
+
+            await Place.updateMany(
+                { "reviews.username": oldUsername },
+                { $set: { "reviews.$[elem].profile": imageUrl, "reviews.$[elem].username": newUsername || oldUsername } },
+                { arrayFilters: [{ "elem.username": oldUsername }] }
+            );
+
+            await Hotel.updateMany(
+                { "reviews.username": oldUsername },
+                { $set: { "reviews.$[elem].profile": imageUrl, "reviews.$[elem].username": newUsername || oldUsername } },
+                { arrayFilters: [{ "elem.username": oldUsername }] }
+            );
 
             res.status(200).json({ status: true, message: "Updated successfully", user: existingUser });
         } catch (error) {

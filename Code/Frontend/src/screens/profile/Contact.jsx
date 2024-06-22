@@ -1,4 +1,4 @@
-import React, {useContext, useState, useEffect, useRef} from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { TextInput, Text, View, SafeAreaView, ScrollView, TouchableOpacity, Linking, Alert, KeyboardAvoidingView } from 'react-native'
 import styles from './contact.style';
@@ -14,8 +14,8 @@ const Contact = () => {
 
     const [email, setEmail] = useState('');
     const [feedback, setFeedback] = useState('');
-    
-    const scrollViewRef = useRef(null);      
+
+    const scrollViewRef = useRef(null);
 
     const userTheme = useContext(themeContext);
     const currentTheme = userTheme === 'dark' ? themeDark.dark : themeDark.light;
@@ -25,23 +25,23 @@ const Contact = () => {
     const sendEmail = async () => {
         try {
             await MailComposer.composeAsync({
-              recipients: ['contact@roexplorer.com']
+                recipients: ['contact@roexplorer.com']
             });
         } catch (error) {
             console.error('Eroare la compunerea emailului:', error);
         }
     }
 
-    const phoneNumber = '0040 749 302 352'; 
-          
+    const phoneNumber = '0040 749 302 352';
+
     const handleCallPress = () => {
         const phoneUrl = `tel:${phoneNumber}`;
         Linking.openURL(phoneUrl);
     }
-        
+
     useEffect(() => {
         const responseData = route.params.data;
-        setEmail(responseData.email); 
+        setEmail(responseData.email);
         setFeedback(responseData.feedback);
     }, [route.params.data])
 
@@ -50,10 +50,10 @@ const Contact = () => {
             email: email,
             feedback: feedback
         }
-        
+
         try {
             const token = await AsyncStorage.getItem('token');
-            
+
             const response = await axios.post('http://10.9.31.61:5003/api/newcontact', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -61,24 +61,24 @@ const Contact = () => {
             });
 
             if (response.status === 201) {
-                console.log('Feedback trimis cu succes!');
+                //console.log('Feedback trimis cu succes!');
                 Alert.alert('Success', 'Feedback sent successfully');
-                setFeedback(''); 
+                setFeedback('');
             } else {
                 console.error('Eroare la trimiterea feedback-ului:', error.response?.data || error.message);
                 Alert.alert('Error', 'Failed to send feedback: ' + response.data.message);
             }
-    
+
         } catch (error) {
             console.error('Eroare la trimiterea formularului:', error);
             Alert.alert('Error', 'An error occurred while sending feedback');
-        }   
+        }
     }
-        
+
     return (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
             <SafeAreaView style={{ flex: 1, backgroundColor: currentTheme.background }}>
-                <ScrollView  ref={scrollViewRef} contentContainerStyle={[styles.container, {backgroundColor: currentTheme.background}]}>
+                <ScrollView ref={scrollViewRef} contentContainerStyle={[styles.container, { backgroundColor: currentTheme.background }]}>
                     <View>
                         <ReusableText
                             text={'Contact info'}
@@ -95,13 +95,13 @@ const Contact = () => {
                                 color={currentTheme.color}
                             />
 
-                            <HeightSpacer height={5}/>
+                            <HeightSpacer height={5} />
 
                             <TouchableOpacity onPress={sendEmail}>
                                 <Text style={styles.textStyle}>contact@roexplorer.com</Text>
                             </TouchableOpacity>
 
-                            <HeightSpacer height={25}/>
+                            <HeightSpacer height={25} />
 
                             <ReusableText
                                 text={'Phone'}
@@ -110,7 +110,7 @@ const Contact = () => {
                                 color={currentTheme.color}
                             />
 
-                            <HeightSpacer height={5}/>
+                            <HeightSpacer height={5} />
 
                             <TouchableOpacity onPress={handleCallPress}>
                                 <Text style={styles.textStyle}>{phoneNumber}</Text>
@@ -118,7 +118,7 @@ const Contact = () => {
 
                         </View>
 
-                        <HeightSpacer height={10}/>
+                        <HeightSpacer height={10} />
 
                         <ReusableText
                             text={'Share your feedback with us'}
@@ -136,9 +136,9 @@ const Contact = () => {
                                 color={currentTheme.color}
                             />
 
-                            <HeightSpacer height={5}/>
+                            <HeightSpacer height={5} />
 
-                            <TextInput                     
+                            <TextInput
                                 placeholder='Enter your email'
                                 autoCapitalize='none'
                                 autoCorrect={false}
@@ -149,7 +149,7 @@ const Contact = () => {
                                 color={currentTheme.color}
                             />
 
-                            <HeightSpacer height={10}/>
+                            <HeightSpacer height={10} />
 
                             <ReusableText
                                 text={'Feedback:'}
@@ -158,9 +158,9 @@ const Contact = () => {
                                 color={currentTheme.color}
                             />
 
-                            <HeightSpacer height={5}/>
+                            <HeightSpacer height={5} />
 
-                            <TextInput                     
+                            <TextInput
                                 placeholder='Enter your feedback'
                                 placeholderTextColor={currentTheme.color}
                                 autoCapitalize='none'
@@ -171,16 +171,16 @@ const Contact = () => {
                                 backgroundColor={currentTheme.background}
                                 color={currentTheme.color}
                                 onChangeText={(text) => setFeedback(text)}
-                                value={feedback} 
+                                value={feedback}
                             />
 
-                            <HeightSpacer height={55}/>
+                            <HeightSpacer height={55} />
 
-                            <View style={{alignItems: 'center'}}>
+                            <View style={{ alignItems: 'center' }}>
                                 <ReusableBtn
-                                    onPress={createContact}        
+                                    onPress={createContact}
                                     btnText={"Send Feedback"}
-                                    width={(SIZES.width - 80)/2}
+                                    width={(SIZES.width - 80) / 2}
                                     backgroundColor={currentTheme.backgroundButton}
                                     borderColor={COLORS.blue}
                                     borderWidth={2}

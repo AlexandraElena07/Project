@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
     image: {
         resizeMode: "cover",
         width: SIZES.width,
-        height: SIZES.height/3
+        height: SIZES.height / 3
     },
     profile: {
         padding: 24,
@@ -17,8 +17,8 @@ const styles = StyleSheet.create({
     },
     username: {
         flexDirection: 'row',
-        alignItems: 'center' 
-    }, 
+        alignItems: 'center'
+    },
     profileAvatar: {
         width: 100,
         height: 100,
@@ -50,106 +50,106 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     modalView: {
-      margin: 20,
-      borderRadius: 20, 
-      padding: 35,
-      alignItems: 'center',
-      shadowColor: COLORS.white,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5
+        margin: 20,
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: COLORS.white,
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
     },
     deleteButton: {
-      flexDirection: 'row',
-      height: 34,
-      width: 130,
-      borderRadius: 9,
-      borderWidth: 1,
-      borderColor: COLORS.blue,
-      justifyContent: 'center',
-      alignItems: 'center',
+        flexDirection: 'row',
+        height: 34,
+        width: 130,
+        borderRadius: 9,
+        borderWidth: 1,
+        borderColor: COLORS.blue,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     buttonTextDelete: {
-      color: COLORS.blue,
-      fontSize: 16,
-      fontWeight: 'bold',
+        color: COLORS.blue,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     buttonCancel: {
-      flexDirection: 'row',
-      height: 34,
-      width: 130,
-      borderRadius: 9,
-      borderWidth: 1,
-      borderColor: COLORS.red,
-      justifyContent: 'center',
-      alignItems: 'center',
+        flexDirection: 'row',
+        height: 34,
+        width: 130,
+        borderRadius: 9,
+        borderWidth: 1,
+        borderColor: COLORS.red,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     buttonTextCancel: {
-      color: COLORS.red,
-      fontSize: 16,
-      fontWeight: 'bold',
+        color: COLORS.red,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     modalText: {
-      fontWeight: 'bold',
-      textAlign: 'center',
-      marginBottom: 15,
-      fontSize: TEXT.medium
-    },  
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 15,
+        fontSize: TEXT.medium
+    },
     textStyle: {
-      color: COLORS.darkGrey,
-      fontWeight: 'medium',
-      textAlign: 'center',
-      marginBottom: 15,
-      fontSize: TEXT.small
+        color: COLORS.darkGrey,
+        fontWeight: 'medium',
+        textAlign: 'center',
+        marginBottom: 15,
+        fontSize: TEXT.small
     },
     profileAvatarDelete: {
-      width: 60,
-      height: 60,
-      borderRadius: 9999,
-      borderWidth: 2,
-      borderColor: COLORS.white
+        width: 60,
+        height: 60,
+        borderRadius: 9999,
+        borderWidth: 2,
+        borderColor: COLORS.white
     },
     email: {
-      flexDirection: 'row',
-      alignItems: 'center' 
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     centerView: {
-      alignItems:'center',
-      alignContent: 'center'
+        alignItems: 'center',
+        alignContent: 'center'
     },
     image: {
-      resizeMode: "contain",
-      alignItems: "center",
-      width: 190,
-      height: 190,
+        resizeMode: "contain",
+        alignItems: "center",
+        width: 190,
+        height: 190,
     },
     modalViewAbout: {
-      margin: 15,
-      borderRadius: 20,
-      padding: 15,
-      shadowColor: COLORS.white,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5
+        margin: 15,
+        borderRadius: 20,
+        padding: 15,
+        shadowColor: COLORS.white,
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
     },
     textStyleAbout: {
-      marginBottom: 15,
-      fontSize: TEXT.small,
-      fontFamily: 'medium'
+        marginBottom: 15,
+        fontSize: TEXT.small,
+        fontFamily: 'medium'
     },
     enlargedImage: {
-      resizeMode: "center",
-      width: SIZES.width,
-      height: SIZES.height/1.2,
-    } 
+        resizeMode: "center",
+        width: SIZES.width,
+        height: SIZES.height / 1.2,
+    }
 })
 
 export default styles

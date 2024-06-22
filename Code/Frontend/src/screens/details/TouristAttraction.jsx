@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, FlatList, TouchableOpacity, VirtualizedList } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, TouchableOpacity, VirtualizedList } from 'react-native';
 import themeContext from '../../constants/themeContext';
 import reusable from '../../components/Reusable/reusable.style';
 import themeDark from '../../constants/themeDark';
@@ -26,9 +26,11 @@ const TouristAttraction = () => {
     const getDataFromDatabase = async () => {
         try {
             const response = await axios.get(`http://10.9.31.61:5003/api/places/byCounty/${item._id}`);
-            setPlaces(response.data.places);
 
-            const fetchedPlaces = response.data.places;
+            let fetchedPlaces = [...response.data.places];
+            fetchedPlaces.sort((a, b) => b.averageRating - a.averageRating);
+
+            setPlaces(fetchedPlaces);
 
             const categories = [...new Set(fetchedPlaces.map(place => place.category))];
 

@@ -1,1 +1,1 @@
-TravelApp
+RoExplorer - TravelApp for Romania
